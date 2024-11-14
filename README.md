@@ -11,5 +11,5 @@ To get started:
 4. Install dependencies
     - `npm install`
 5. Run the server
-    - `npm start`
+    - `npm run dev`
 6. Open the app at the address indicated by the terminal (e.g. `http://localhost:3000`)
