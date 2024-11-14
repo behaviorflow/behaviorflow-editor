@@ -11,19 +11,22 @@
   
   .node-header {
     background-image: linear-gradient( 135deg, #211091 10%, #4f40f3e4 100%);
-    padding: 4px;
+    padding-top: 3px;
+    padding-bottom: 2px;
+    padding-left: 9px;
     text-align: center;
     color: rgb(218, 214, 214);
     border-top-left-radius: var(--node-border-radius);
     border-top-right-radius: var(--node-border-radius);
   }
 
-  .name-label {
-    font-size: 14px;
+  .type-label {
+    font-size: 12.5px;
   }
 
-  .type-label {
+  .name-label {
     font-size: 11px;
+    color: #9b9b9b;
   }
   
   .node-content {

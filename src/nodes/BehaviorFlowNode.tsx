@@ -26,8 +26,8 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
         position={Position.Left}
       />
       <div className="node-header">
-        <div className="name-label">{nodeName}</div>
         <div className="type-label">{nodeType}</div>
+        <div className="name-label">{nodeName}</div>
       </div>
       <div className="node-content">
         <div className="left-column">
@@ -41,10 +41,9 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
         <div className="right-column">
           <div className="out-port-rows">
             {outPorts.map((port, index) => (
-              <div className='out-port-row'>
+              <div key={index} className='out-port-row'>
                 <span className="out-port-label">{port}:</span>
                 <Handle
-                  key={index}
                   type="source"
                   position={Position.Right}
                   id={`port-${index}`}
