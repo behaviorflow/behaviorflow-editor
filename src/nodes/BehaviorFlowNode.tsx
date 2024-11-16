@@ -33,8 +33,8 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
         <div className="left-column">
           {inParams.map((param, index) => (
               <div key={index} className="param-field-section">
-                <label htmlFor="rtext-${index}">{param.paramName}: </label>
-                <input id="rtext-${index}" name="rtext" className="nodrag input-param-field" />
+                <label htmlFor={`in-param-text-${index}`}>{param.paramName}: </label>
+                <input id={`in-param-text-${index}`} name="rtext" className="nodrag in-param-field" />
               </div>
             ))}
         </div>
@@ -54,10 +54,10 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
           </div>
           {outParams.map((param, index) => (
             <div key={index} className="param-field-section">
-              <label htmlFor="rtext-${index}">{param.paramName}: </label>
+              <label htmlFor={`out-param-text-${index}`}>{param.paramName}: </label>
               <div>
-                <input id="rtext-${index}" name="rtext" className="nodrag output-param-field"/>
-                <span className="output-param-dollar">$</span>
+                <input id={`out-param-text-${index}`} name="rtext" className="nodrag out-param-field"/>
+                <span className="out-param-dollar">$</span>
               </div>
             </div>
           ))}

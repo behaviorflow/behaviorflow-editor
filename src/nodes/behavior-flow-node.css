@@ -14,6 +14,7 @@
     padding-top: 3px;
     padding-bottom: 2px;
     padding-left: 9px;
+    padding-right: 9px;
     text-align: center;
     color: rgb(218, 214, 214);
     border-top-left-radius: var(--node-border-radius);
@@ -70,21 +71,21 @@
     font-size: 8px;
   }
 
-  .input-param-field, .output-param-field {
+  .in-param-field, .out-param-field {
     font-size: var(--field-font-size);
     font-family: var(--field-text-font-fam);
   }
 
-  .input-param-field {
+  .in-param-field {
     width: var(--param-field-width);
   }
 
-  .output-param-field {
+  .out-param-field {
     width: calc(var(--param-field-width) - var(--padding-for-dollar));
     padding-left: var(--padding-for-dollar);
   }
 
-  .output-param-dollar {
+  .out-param-dollar {
     position: absolute;
     margin-left: calc(var(--content-padding-lr) * -1.0 - var(--param-field-width) + var(--padding-for-dollar) * 0.8);
     margin-top: 2px;
