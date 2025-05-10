@@ -1,20 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Handle, Position, NodeProps, Node } from '@xyflow/react';
+import { BfNodeAttributes } from '../types';
 
-export type NodeParam = {
-  paramName: string;
-  // paramType, defaultValue, etc
-}
-
-export type BehaviorFlowNode = Node<
-  {
-    nodeName: string;
-    nodeType: string;
-    inParams: NodeParam[];
-    outParams: NodeParam[];
-    outPorts: string[];
-  }
->;
+export type BehaviorFlowNode = Node<BfNodeAttributes>;
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
   const { nodeName, nodeType, inParams, outParams, outPorts} = props.data
@@ -26,37 +14,37 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
         position={Position.Left}
       />
       <div className="node-header">
-        <div className="type-label">{nodeType}</div>
         <div className="name-label">{nodeName}</div>
+        <div className="type-label">{nodeType}</div>
       </div>
       <div className="node-content">
         <div className="left-column">
           {inParams.map((param, index) => (
-              <div key={index} className="param-field-section">
-                <label htmlFor={`in-param-text-${index}`}>{param.paramName}: </label>
-                <input id={`in-param-text-${index}`} name="rtext" className="nodrag in-param-field" />
+              <div key={nodeName+index} className="param-field-section">
+                <label htmlFor={`${nodeName}-in-param-text-${index}`}>{param.paramName}: </label>
+                <input id={`${nodeName}-in-param-text-${index}`} name="rtext" className="nodrag in-param-field" />
               </div>
             ))}
         </div>
         <div className="right-column">
           <div className="out-port-rows">
             {outPorts.map((port, index) => (
-              <div key={index} className='out-port-row'>
+              <div key={nodeName+index} className='out-port-row'>
                 <span className="out-port-label">{port}:</span>
                 <Handle
                   type="source"
                   position={Position.Right}
-                  id={`port-${index}`}
+                  id={`${nodeName}-port-${index}`}
                   className="out-port"
                 />
               </div>
             ))}
           </div>
           {outParams.map((param, index) => (
-            <div key={index} className="param-field-section">
-              <label htmlFor={`out-param-text-${index}`}>{param.paramName}: </label>
+            <div key={nodeName+index} className="param-field-section">
+              <label htmlFor={`${nodeName}-out-param-text-${index}`}>{param.paramName}: </label>
               <div>
-                <input id={`out-param-text-${index}`} name="rtext" className="nodrag out-param-field"/>
+                <input id={`${nodeName}-out-param-text-${index}`} name="rtext" className="nodrag out-param-field"/>
                 <span className="out-param-dollar">$</span>
               </div>
             </div>
