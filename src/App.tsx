@@ -20,10 +20,6 @@ import './nodes/behavior-flow-node.css';
 
 import Sidebar from './components/Sidebar';
 
-const rfStyle = {
-  backgroundColor: '#cccccc',
-};
-
 const initialNodes = [
   {
     id: 'start',
@@ -102,22 +98,27 @@ export default function App() {
   );
  
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        connectionLineStyle={connectionLineStyle}
-        fitView
-        style={rfStyle}
-      >
-        <Controls />
-        <MiniMap />
-        <Background color="#666666" variant="dots" gap={15} size={1} />
-      </ReactFlow>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
+      <div style={{ width: '250px', background: '#333', color: 'white', padding: '1rem' }}>
+        <Sidebar />
+      </div>
+      <div style={{ flex: 1 }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          connectionLineStyle={connectionLineStyle}
+          fitView
+          style={{backgroundColor: '#cccccc', width: '100%', height: '100%'}}
+        >
+          <Controls />
+          <MiniMap />
+          <Background color="#666666" variant="dots" gap={15} size={1} />
+        </ReactFlow>
+      </div>
     </div>
   );
 }
