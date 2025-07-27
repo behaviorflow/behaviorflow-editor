@@ -1,10 +1,11 @@
 import React from 'react';
+import DraggableNodeCard from './DraggableNodeCard'
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onDragStart }) => {
+function Sidebar( { onDragStart } ) {
   const nodes = [
     { id: 'node-1', label: 'Node 1', type: 'default' },
     { id: 'node-2', label: 'Node 2', type: 'input' },

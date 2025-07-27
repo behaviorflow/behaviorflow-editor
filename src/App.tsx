@@ -18,7 +18,8 @@ import StartNode from './nodes/StartNode';
 import TerminalNode from './nodes/TerminalNode';
 import './nodes/behavior-flow-node.css'; 
 
-import Sidebar from './components/Sidebar';
+import NodePalette from './components/NodePalette';
+import { NodeParam, BfNodeAttributes } from './types';
 
 const initialNodes = [
   {
@@ -96,11 +97,39 @@ export default function App() {
       )),
     [setEdges],
   );
+
+  // const onNodeDrop = useCallback(
+
+  // )
+
+  const nodeAttributes : BfNodeAttributes[] = [
+    {
+      nodeName: "Do Thing",
+      nodeType: "type",
+      inParams: [],
+      outParams: [],
+      outPorts: ["Success", "Fail"]
+    },
+    {
+      nodeName: "Check Thing",
+      nodeType: "type2",
+      inParams: [],
+      outParams: [],
+      outPorts: ["Success", "Fail"]
+    },
+    {
+      nodeName: "Move to Charger",
+      nodeType: "type3",
+      inParams: [],
+      outParams: [],
+      outPorts: ["Success", "Fail"]
+    },
+  ]
  
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-      <div style={{ width: '250px', background: '#333', color: 'white', padding: '1rem' }}>
-        <Sidebar />
+      <div>
+        <NodePalette nodes={nodeAttributes} />
       </div>
       <div style={{ flex: 1 }}>
         <ReactFlow
