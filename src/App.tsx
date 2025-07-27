@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import {
   ReactFlow,
+  ReactFlowProvider,
   MiniMap,
   Controls,
   Background,
@@ -9,6 +10,7 @@ import {
   addEdge,
   Edge,
   Connection,
+  useReactFlow,
   NodeToolbar,
   BackgroundVariant
 } from '@xyflow/react';
@@ -68,22 +70,10 @@ const connectionLineStyle = {
   stroke: "#00254d",
   strokeWidth: 1.5
 };
-
-// const onConnectStart = useCallback(
-
-// )
-
-// const initialNodes = [
-//   { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-//   { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-// ];
-// const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
  
 const initialEdges = [];
 
-// import { initialNodes, nodeTypes } from './nodes';
-
-export default function App() {
+function FlowContent({ nodeAttributes }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
  
@@ -98,10 +88,78 @@ export default function App() {
     [setEdges],
   );
 
-  // const onNodeDrop = useCallback(
+  const insertNode = useCallback(
+    (nodeAttributes: BfNodeAttributes, position: { x: number; y: number }) => {
+      const newNode = {
+        id: nodeAttributes.nodeName, // This should be unique. is the nodeName the nodeTypeId or the nodeId? Should be consistent on naming.
+        type: 'behaviorFlowNode', // revisit if needed
+        position,
+        data: nodeAttributes,
+      };
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [setNodes]
+  );
 
-  // )
+  const { screenToFlowPosition } = useReactFlow();
 
+const handleDragOver = (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy'; // This changes the cursor to a copy cursor
+  // You can also use 'move' for a different cursor
+};
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('application/json');
+    
+    if (data) {
+      try {
+        const nodeAttributes = JSON.parse(data);
+        if (nodeAttributes && nodeAttributes.nodeName) {
+          const position = screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
+          });
+          
+          insertNode(nodeAttributes, position);
+        }
+      } catch (e) {
+        console.error('Exception on drop:', e);
+      }
+    }
+  };
+ 
+  return (
+    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
+      <div>
+        <NodePalette nodes={nodeAttributes} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          connectionLineStyle={connectionLineStyle}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          fitView
+          style={{backgroundColor: '#cccccc', width: '100%', height: '100%'}}
+        >
+          <Controls />
+          <MiniMap />
+          <Background color="#666666" variant="dots" gap={15} size={1} />
+        </ReactFlow>
+      </div>
+    </div>
+  );
+}
+
+
+export default function App() {
   const nodeAttributes : BfNodeAttributes[] = [
     {
       nodeName: "Do Thing",
@@ -127,28 +185,9 @@ export default function App() {
   ]
  
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-      <div>
-        <NodePalette nodes={nodeAttributes} />
-      </div>
-      <div style={{ flex: 1 }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          connectionLineStyle={connectionLineStyle}
-          fitView
-          style={{backgroundColor: '#cccccc', width: '100%', height: '100%'}}
-        >
-          <Controls />
-          <MiniMap />
-          <Background color="#666666" variant="dots" gap={15} size={1} />
-        </ReactFlow>
-      </div>
-    </div>
+    <ReactFlowProvider>
+      <FlowContent nodeAttributes={nodeAttributes} />
+    </ReactFlowProvider>
   );
 }
 
