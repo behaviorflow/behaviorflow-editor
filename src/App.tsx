@@ -25,6 +25,8 @@ import { NodeParam, BfNodeAttributes } from "./types";
 
 import { v4 as uuid } from 'uuid';
 
+import { useTheme } from "./components/ThemeProvider";
+
 const initialNodes = [
   {
     id: "start",

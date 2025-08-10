@@ -8,9 +8,9 @@ export type NodeParam = {
   // paramType, defaultValue, etc
 };
 
-export type BfNodeAttributes = {
+export type BfNodeAttributes = { // Maybe change to BfNodeType
   nodeId: string;
-  nodeType: string;
+  nodeType: string; // Maybe change to nodeTypeId
   inParams: NodeParam[];
   outParams: NodeParam[];
   outPorts: string[];

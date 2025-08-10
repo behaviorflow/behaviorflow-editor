@@ -67,7 +67,7 @@
 
 .left-column {
   text-align: left;
-  border-right: 1.0px solid rgb(107, 107, 107);
+  /* border-right: 1.0px solid rgb(107, 107, 107); */
   padding-right: var(--content-padding-inner);
 }
 
