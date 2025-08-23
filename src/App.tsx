@@ -20,7 +20,7 @@ import StartNode from "./nodes/StartNode";
 import TerminalNode from "./nodes/TerminalNode";
 import "./nodes/behavior-flow-node.css";
 
-import NodePalette from "./components/NodePalette";
+import NodePalette from "./components/NodePaletteSidebar";
 import { NodeParam, BfNodeAttributes } from "./types";
 
 import { v4 as uuid } from 'uuid';

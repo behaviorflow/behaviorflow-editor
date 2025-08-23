@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { GripVertical } from "lucide-react";
 import { BfNodeAttributes } from "../types";
+import { BehaviorFlowNode } from "../nodes/BehaviorFlowNode";
 
 interface DraggableNodeCardProps {
   nodeType: string;
@@ -10,7 +11,8 @@ interface DraggableNodeCardProps {
 
 export default function DraggableNodeCard({ nodeType, nodeAttributes, isSelected = false }: DraggableNodeCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
+  const [showCallout, setShowCallout] = useState(false);
+  const calloutTimer = useRef<number | null>(null);
   const handleDragStart = (e) => {
     e.dataTransfer.setData("application/json", JSON.stringify(nodeAttributes));
     e.currentTarget.style.cursor = "grabbing";
@@ -23,9 +25,16 @@ export default function DraggableNodeCard({ nodeType, nodeAttributes, isSelected
   };
   const handleMouseEnter = () => {
     setIsHovered(true);
+    calloutTimer.current = window.setTimeout(() => {
+      setShowCallout(true);
+    }, 1000);
   };
   const handleMouseLeave = () => {
     setIsHovered(false);
+    if (calloutTimer.current) {
+      window.clearTimeout(calloutTimer.current);
+    }
+    setShowCallout(false);
   };
   const handleMouseUp = (e) => {
     e.currentTarget.style.cursor = "grab";
@@ -66,6 +75,28 @@ export default function DraggableNodeCard({ nodeType, nodeAttributes, isSelected
           {nodeType}
         </span>
       </div>
+      {showCallout && (
+        <div
+          style={{
+            position: "absolute",
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: "5px",
+            padding: "10px",
+            marginTop: "5px",
+            width: "200px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+            zIndex: 1000,
+          }}>
+          <strong>{nodeType}</strong>
+          <div style={{ marginTop: "5px", fontSize: "0.9em" }}>
+            <div><strong>In Params:</strong> {nodeAttributes.inParams.length > 0 ? nodeAttributes.inParams.map((p) => p.paramName).join(", ") : "None"}</div>
+            <div><strong>Out Params:</strong> {nodeAttributes.outParams.length > 0 ? nodeAttributes.outParams.map((p) => p.paramName).join(", ") : "None"}</div>
+            <div><strong>Out Ports:</strong> {nodeAttributes.outPorts.length > 0 ? nodeAttributes.outPorts.join(", ") : "None"}</div>
+            {/* <BehaviorFlowNode> nodeId=nodeAttributes.nodeId, nodeType, inParams, outParams, outPorts </BehaviorFlowNode> */}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
