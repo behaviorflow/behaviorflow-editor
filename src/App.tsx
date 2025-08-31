@@ -15,17 +15,19 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import BehaviorFlowNode from "./nodes/BehaviorFlowNode";
-import StartNode from "./nodes/StartNode";
-import TerminalNode from "./nodes/TerminalNode";
-import "./nodes/behavior-flow-node.css";
+import BehaviorFlowNode from "./components/nodes/BehaviorFlowNode";
+import StartNode from "./components/nodes/StartNode";
+import TerminalNode from "./components/nodes/TerminalNode";
+import "./components/nodes/behavior-flow-node.css";
 
-import NodePalette from "./components/NodePaletteSidebar";
+import NodePaletteSidebar from "./components/sidebars/NodePaletteSidebar/NodePaletteSidebar";
 import { NodeParam, BfNodeAttributes } from "./types";
 
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
-import { useTheme } from "./components/ThemeProvider";
+import useLocalStorage from "use-local-storage";
+
+import "./App.css";
 
 const initialNodes = [
   {
@@ -73,6 +75,14 @@ const connectionLineStyle = {
 const initialEdges = [];
 
 function FlowContent({ nodeAttributes }) {
+  const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
+
+  const switchTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  };
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -135,11 +145,15 @@ function FlowContent({ nodeAttributes }) {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
-      <div>
-        <NodePalette nodes={nodeAttributes} />
+    <div className="app" data-theme={theme}>
+      <div style={{ display: "flex" }}>
+        <NodePaletteSidebar nodes={nodeAttributes} />
       </div>
       <div style={{ flex: 1 }}>
+        <button onClick={switchTheme}>
+          {/* Temporary */}
+          Switch to {theme === "light" ? "Dark" : "Light"} Theme
+        </button>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -192,5 +206,3 @@ export default function App() {
     </ReactFlowProvider>
   );
 }
-
-//        <Sidebar />

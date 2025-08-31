@@ -1,0 +1,22 @@
+.simple-symbol-button {
+	width: 30px;
+	height: 30px;
+	background-color: var(--background);
+	color: var(--text-disabled);
+	border: none;
+	border-radius: 0.5em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	position: relative;
+	padding: 0;
+}
+
+.simple-symbol-button.active {
+	color: var(--text-primary);
+}
+
+.simple-symbol-button.active:hover {
+	background-color: var(--background-hover);
+}

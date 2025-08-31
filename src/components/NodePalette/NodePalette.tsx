@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import DraggableNodeCard from "./DraggableNodeCard";
-import SidebarButton from "./SidebarButton";
-import { BfNodeAttributes } from "../types";
+import { useState } from "react";
+import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
+import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
+import { BfNodeAttributes } from "../../types";
 import { CirclePlus, Wrench, FolderPlus } from "lucide-react";
+import "./node-palette.css";
 
-import NewNodeTypeModal from "./NewNodeTypeModal";
+import NewNodeTypeModal from "../NewNodeTypeModal/NewNodeTypeModal";
 
-interface NodePaletteProps {
-  //   onDragEnd: (event: React.DragEvent, nodeAttributes: BfNodeAttributes) => void;
+export interface NodePaletteProps {
   nodes: BfNodeAttributes[];
 }
 
@@ -24,25 +24,19 @@ export default function NodePalette({ nodes }: NodePaletteProps) {
   };
 
   return (
-    <div
-      style={{
-        width: "300px",
-        height: "100vh",
-        backgroundColor: "#8d8d8dff",
-        borderRight: "1px solid #ddd",
-        padding: "10px",
-      }}>
-      <h2 style={{ textAlign: "left", marginBottom: "5px", padding: "5px", color: "#151515ff" }}>Node Pallette</h2>
-      <div style={{ textAlign: "center", marginBottom: "10px", alignItems: "center", display: "flex", gap: "0.2em" }}>
-        <SidebarButton
+    <div>
+      <div className="node-palette-controls">
+        <SimpleSymbolButton
           onClick={() => setIsNewNodeTypeModalOpen(true)}
           buttonName="New Node Type"
-          symbol={<CirclePlus />}></SidebarButton>
-        <SidebarButton
+          symbol={<CirclePlus />}
+        />
+        <SimpleSymbolButton
           onClick={() => console.log("Button clicked")}
           buttonName="New Node Group"
-          symbol={<FolderPlus />}></SidebarButton>
-        <SidebarButton
+          symbol={<FolderPlus />}
+        />
+        <SimpleSymbolButton
           onClick={() => console.log("Button clicked")}
           buttonName="Edit Node Type"
           symbol={<Wrench />}
@@ -50,22 +44,14 @@ export default function NodePalette({ nodes }: NodePaletteProps) {
         />
       </div>
       <input
-        style={{
-          backgroundColor: "white",
-          width: "90%",
-          marginBottom: "10px",
-          padding: "5px",
-          borderRadius: "5px",
-          border: "1px solid #ccc",
-          color: " black",
-        }}
+        className="node-palette-search"
         type="text"
         placeholder="Filter nodes..."
         value={searchTerm}
         onChange={handleSearchInputChange}
       />
       {nodes.map((node) => (
-        <div key={node.nodeType} style={{ textAlign: "left" }} onClick={() => handleItemClick(node.nodeType)}>
+        <div key={node.nodeType} className="node-palette-item" onClick={() => handleItemClick(node.nodeType)}>
           <DraggableNodeCard nodeType={node.nodeType} nodeAttributes={node} isSelected={activeItem == node.nodeType} />
         </div>
       ))}

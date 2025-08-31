@@ -1,0 +1,61 @@
+.draggable-node-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--background);
+  border-radius: 0.25em;
+  color: var(--text-primary);
+  padding: 0.14em;
+  cursor: grab;
+}
+
+.draggable-node-card.selected {
+  background-color: var(--background-select);
+  border: 0.08em solid var(--select-outline);
+}
+
+.draggable-node-card:hover {
+  background-color: var(--background-hover);
+}
+
+.draggable-node-card.grabbing {
+  cursor: grabbing;
+}
+
+.draggable-node-card-grip {
+  width: 1.0em;
+  height: 1.0em;
+  color: var(--text-color);
+  vertical-align: middle;
+}
+
+.draggable-node-card-text {
+  font-weight: normal;
+  font-size: 0.9em;
+  padding-left: 0.1em;
+  vertical-align: middle;
+}
+
+.draggable-node-card-callout {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 5px;
+  width: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.draggable-node-card-callout-title {
+  font-weight: bold;
+}
+
+.draggable-node-card-callout-content {
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.draggable-node-card-callout-section {
+  margin-top: 2px;
+}

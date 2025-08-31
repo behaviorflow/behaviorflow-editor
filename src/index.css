@@ -11,6 +11,25 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --background: #8d8d8dff;
+  --background-hover: #7b7b7bff;
+  --background-select: #6f8a91ff;
+  --select-outline: #2e87a3ff;
+  --text-primary: black;
+  --text-secondary: royalblue;
+  --text-disabled: #565656ff;
+
+}
+
+[data-theme='dark'] {
+  --background: #202225ff;
+  --background-hover: #4c4f51ff;
+  --background-select: rgba(24, 149, 233, 0.54);
+  --select-outline: rgba(3, 154, 255, 0.54);
+  --text-primary: white;
+  --text-secondary: grey;
+  --text-disabled: #a7a7a7ff;
 }
 
 a {
@@ -36,13 +55,14 @@ h1 {
 }
 
 button {
+  color: var(--text-primary);
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--background);
   cursor: pointer;
   transition: border-color 0.25s;
 }
