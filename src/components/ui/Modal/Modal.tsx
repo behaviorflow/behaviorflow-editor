@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import useLocalStorage from "use-local-storage";
 import "./modal.css";
 
 // Portal-based Modal Component
 const Modal = ({ isOpen, onClose, title, children }) => {
+  // Because this is a portal, we need to import theme directly
+  const [theme] = useLocalStorage('theme', 'light');
+
   // Close modal on Escape key and manage body scroll
   useEffect(() => {
     const handleEscape = (e) => {
@@ -28,13 +32,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className="modal">
+    <div className="modal" data-theme={theme}>
       <div className="backdrop" onClick={onClose} />
       <div className="modal-window">
         <div className="modal-header">
           <h3 className="modal-title">{title}</h3>
           <button onClick={onClose} className="modal-close-button">
-            <X size={20} color="#6b7280" />
+            <X size={20} />
           </button>
         </div>
 

@@ -1,22 +1,34 @@
 .simple-symbol-button {
 	width: 30px;
 	height: 30px;
-	background-color: var(--background);
-	color: var(--text-disabled);
 	border: none;
 	border-radius: 0.5em;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	cursor: pointer;
 	position: relative;
 	padding: 0;
+	background-color: inherit;
+	cursor: default;
+	color: var(--text-disabled);
 }
 
-.simple-symbol-button.active {
+.simple-symbol-button.enabled {
 	color: var(--text-primary);
+	cursor: pointer;
 }
 
-.simple-symbol-button.active:hover {
+.simple-symbol-button.enabled:hover {
 	background-color: var(--background-hover);
+}
+
+.symbol-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.symbol-container svg {
+	width: 18px;
+	height: 18px;
 }

@@ -13,10 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 
   --background: #8d8d8dff;
+  --background-secondary: rgb(174, 174, 174);
   --background-hover: #7b7b7bff;
   --background-select: #6f8a91ff;
+  --modal-backdrop: rgba(0, 0, 0, 0.75);
   --select-outline: #2e87a3ff;
-  --text-primary: black;
+  --text-primary: #111827ff;
   --text-secondary: royalblue;
   --text-disabled: #565656ff;
 
@@ -24,12 +26,14 @@
 
 [data-theme='dark'] {
   --background: #202225ff;
+  --background-secondary: rgb(54, 57, 62);
   --background-hover: #4c4f51ff;
-  --background-select: rgba(24, 149, 233, 0.54);
-  --select-outline: rgba(3, 154, 255, 0.54);
-  --text-primary: white;
+  --background-select: rgb(16, 115, 182);
+  --modal-backdrop: rgba(0, 0, 0, 0.33);
+  --select-outline: rgb(34, 119, 193);
+  --text-primary: #e4e4e4ff;
   --text-secondary: grey;
-  --text-disabled: #a7a7a7ff;
+  --text-disabled: rgb(125, 125, 125);
 }
 
 a {

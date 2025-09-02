@@ -1,7 +1,6 @@
 .sidebar {
-	width: 300px;
+	width: 250px;
 	height: 100vh;
-	background-color: var(--background);
 	color: var(--text-primary);
 	border-right: 1px solid white;
 	display: flex;

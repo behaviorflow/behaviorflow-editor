@@ -1,0 +1,39 @@
+.behavior-flow-menu {
+  width: 100%;
+}
+
+.behavior-flow-menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.behavior-flow-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.behavior-flow-menu-item:hover {
+  background-color: var(--background-hover);
+}
+
+.behavior-flow-menu-item:focus {
+  outline: none;
+  background-color: var(--background-hover);
+}
+
+/* If the menu item has an icon, we can add this class */
+.behavior-flow-menu-item-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

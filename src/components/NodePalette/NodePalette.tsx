@@ -40,7 +40,7 @@ export default function NodePalette({ nodes }: NodePaletteProps) {
           onClick={() => console.log("Button clicked")}
           buttonName="Edit Node Type"
           symbol={<Wrench />}
-          isActive={activeItem != null}
+          isEnabled={activeItem != null}
         />
       </div>
       <input

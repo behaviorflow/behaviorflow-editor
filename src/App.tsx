@@ -20,7 +20,10 @@ import StartNode from "./components/nodes/StartNode";
 import TerminalNode from "./components/nodes/TerminalNode";
 import "./components/nodes/behavior-flow-node.css";
 
-import NodePaletteSidebar from "./components/sidebars/NodePaletteSidebar/NodePaletteSidebar";
+import ActivityBar from "./components/ui/ActivityBar/ActivityBar";
+import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
+import NodePalette from "./components/NodePalette/NodePalette";
+
 import { NodeParam, BfNodeAttributes } from "./types";
 
 import { v4 as uuid } from "uuid";
@@ -28,6 +31,8 @@ import { v4 as uuid } from "uuid";
 import useLocalStorage from "use-local-storage";
 
 import "./App.css";
+
+import { Menu, Workflow, Settings } from "lucide-react";
 
 const initialNodes = [
   {
@@ -144,16 +149,41 @@ function FlowContent({ nodeAttributes }) {
     }
   };
 
+  const activityBarItems = [
+    {
+      itemName: "Menu",
+      nameDisplay: "Menu",
+      symbol: <Menu />,
+      content: <BehaviorFlowMenu />,
+    },
+    {
+      itemName: "Node Palette",
+      nameDisplay: "Nodes",
+      symbol: <Workflow />,
+      content: <NodePalette nodes={nodeAttributes} />,
+    },
+    {
+      itemName: "Settings",
+      nameDisplay: "Settings",
+      symbol: <Settings />,
+      content: (
+        <div>
+          <button onClick={switchTheme}>
+            {/* Temporary */}
+            Switch to {theme === "light" ? "Dark" : "Light"} Theme
+            {/* todo: fix, so that this item is aware of change, or make drop down */}
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="app" data-theme={theme}>
       <div style={{ display: "flex" }}>
-        <NodePaletteSidebar nodes={nodeAttributes} />
+        <ActivityBar activityBarItems={activityBarItems} />
       </div>
       <div style={{ flex: 1 }}>
-        <button onClick={switchTheme}>
-          {/* Temporary */}
-          Switch to {theme === "light" ? "Dark" : "Light"} Theme
-        </button>
         <ReactFlow
           nodes={nodes}
           edges={edges}

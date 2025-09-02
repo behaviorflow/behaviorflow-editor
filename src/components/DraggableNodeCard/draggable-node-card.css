@@ -1,20 +1,20 @@
 .draggable-node-card {
   display: flex;
   align-items: center;
-  background-color: var(--background);
+  background-color: inherit;
   border-radius: 0.25em;
   color: var(--text-primary);
   padding: 0.14em;
   cursor: grab;
 }
 
-.draggable-node-card.selected {
-  background-color: var(--background-select);
-  border: 0.08em solid var(--select-outline);
-}
-
 .draggable-node-card:hover {
   background-color: var(--background-hover);
+}
+
+.draggable-node-card.selected {
+  background-color: var(--background-select);
+  border: 0.09em solid var(--select-outline);
 }
 
 .draggable-node-card.grabbing {
@@ -37,8 +37,8 @@
 
 .draggable-node-card-callout {
   position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--background-hover);
+  border: 1px solid var(--text-primary);
   border-radius: 5px;
   padding: 10px;
   margin-top: 5px;

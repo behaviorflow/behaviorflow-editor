@@ -1,0 +1,17 @@
+.activity-bar-container {
+  display: flex;
+  height: 100%;
+}
+
+.activity-bar {
+  --activity-bar-width: 52px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  width: var(--activity-bar-width);
+}
+
+.activity-bar-sidebar {
+  flex: 1;
+	background-color: var(--background-secondary);
+}
