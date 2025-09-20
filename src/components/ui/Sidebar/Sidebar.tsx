@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 interface SidebarProps {
   title: string;
@@ -12,29 +12,32 @@ export default function Sidebar({ title, children, defaultWidth = 250 }: Sidebar
   const [isResizing, setIsResizing] = useState(false);
   const [dragPreviousX, setDragPreviousX] = useState(0);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault(); // Prevent text selection while dragging
     setIsResizing(true);
     setDragPreviousX(e.clientX);
-  };
+  }, []);
 
-  const handleDoubleClick = () => {
+  const handleDoubleClick = useCallback(() => {
     setWidth(defaultWidth);
-  };
+  }, [defaultWidth]);
 
-  React.useEffect(() => {
-    function handleMouseMove(e: MouseEvent) {
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
       if (isResizing) {
         const newWidth = width + (e.clientX - dragPreviousX);
         setDragPreviousX(e.clientX);
         setWidth(newWidth);
       }
-    }
+    },
+    [isResizing, dragPreviousX]
+  );
 
-    function handleMouseUp() {
-      setIsResizing(false);
-    }
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
 
+  React.useEffect(() => {
     if (isResizing) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
@@ -44,7 +47,7 @@ export default function Sidebar({ title, children, defaultWidth = 250 }: Sidebar
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   return (
     <div className={`sidebar-container ${isResizing ? "resizing" : ""}`}>
