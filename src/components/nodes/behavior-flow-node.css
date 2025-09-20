@@ -1,5 +1,6 @@
 .behavior-flow-node {
   --node-border-radius: 8px;
+  --node-border: 1px solid var(--border);
 
   display: flex;
   flex-direction: column;
@@ -23,6 +24,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   font-weight: medium;
   border-radius: var(--node-border-radius);
+  border: var(--node-border);
 }
   
 .node-header {
@@ -36,6 +38,7 @@
   color: rgb(218, 214, 214);
   border-top-left-radius: var(--node-border-radius);
   border-top-right-radius: var(--node-border-radius);
+  border: var(--node-border);
 }
 
 .name-label {
@@ -63,6 +66,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-bottom-left-radius: var(--node-border-radius);
   border-bottom-right-radius: var(--node-border-radius);
+  border: var(--node-border);
 }
 
 .left-column {

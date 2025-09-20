@@ -1,8 +1,18 @@
-.sidebar {
-	width: 250px;
+.sidebar-container {
+	display: flex;
+	flex-direction: row;
 	height: 100vh;
+}
+
+.sidebar-container.resizing {
+  user-select: none;
+}
+
+.sidebar {
+	height: 100vh;
+	max-width: 600px;
+	min-width: 100px;
 	color: var(--text-primary);
-	border-right: 1px solid white;
 	display: flex;
 	flex-direction: column;
 	padding: 10px;
@@ -11,4 +21,17 @@
 .title {
 	margin-bottom: 5px;
 	text-align: left;
+}
+
+.resizer {
+	display: flex;
+	width: 3px;
+	border: 1px solid var(--background-secondary);
+	height: 100vh;
+	background-color: var(--border);
+	cursor: ew-resize;
+}
+
+.resizer:active {
+  user-select: none;
 }

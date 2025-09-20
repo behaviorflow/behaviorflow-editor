@@ -40,6 +40,7 @@ const initialNodes = [
     type: "startNode",
     position: { x: 0, y: 0 },
     draggable: false,
+    data: {},
   },
   {
     id: "node-1",
@@ -72,12 +73,7 @@ const initialNodes = [
 ];
 const nodeTypes = { behaviorFlowNode: BehaviorFlowNode, startNode: StartNode, terminalNode: TerminalNode };
 
-const connectionLineStyle = {
-  stroke: "#00254d",
-  strokeWidth: 1.5,
-};
-
-const initialEdges = [];
+const initialEdges: Edge[] = [];
 
 function FlowContent({ nodeAttributes }) {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -90,18 +86,18 @@ function FlowContent({ nodeAttributes }) {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
   const onConnect = useCallback(
     (connection: Edge | Connection) =>
-      setEdges((edges) =>
-        addEdge(
-          {
-            ...connection,
-            style: connectionLineStyle,
-          },
-          edges
-        )
-      ),
+      setEdges((edges) => {
+        const newEdge = addEdge(connection, edges);
+        // Add style to each new edge
+        if (Array.isArray(newEdge)) {
+          return newEdge.map(edge => ({
+            ...edge,
+          }));
+        }
+        return newEdge;
+      }),
     [setEdges]
   );
 
@@ -180,10 +176,10 @@ function FlowContent({ nodeAttributes }) {
 
   return (
     <div className="app" data-theme={theme}>
-      <div style={{ display: "flex" }}>
+      <div className="activity-bar-container">
         <ActivityBar activityBarItems={activityBarItems} />
       </div>
-      <div style={{ flex: 1 }}>
+      <div className="react-flow-container">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -191,14 +187,12 @@ function FlowContent({ nodeAttributes }) {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          connectionLineStyle={connectionLineStyle}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          fitView
-          style={{ backgroundColor: "#cccccc", width: "100%", height: "100%" }}>
+          fitView>
           <Controls />
           <MiniMap />
-          <Background color="#666666" variant="dots" gap={15} size={1} />
+          <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
         </ReactFlow>
       </div>
     </div>

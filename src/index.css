@@ -12,6 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --editor-background: #cccccc;
   --background: #8d8d8dff;
   --background-secondary: rgb(174, 174, 174);
   --background-hover: #7b7b7bff;
@@ -21,10 +22,14 @@
   --text-primary: #111827ff;
   --text-secondary: royalblue;
   --text-disabled: #565656ff;
-
+  --border: transparent;
+  --xy-edge-stroke: #00254d;
+  --xy-connectionline-stroke: var(--xy-edge-stroke);
+  --xy-edge-stroke-selected: #e3801e;
 }
 
 [data-theme='dark'] {
+  --editor-background: #2a2a2a;
   --background: #202225ff;
   --background-secondary: rgb(54, 57, 62);
   --background-hover: #4c4f51ff;
@@ -34,6 +39,10 @@
   --text-primary: #e4e4e4ff;
   --text-secondary: grey;
   --text-disabled: rgb(125, 125, 125);
+  --border: #ffffff;
+  --xy-edge-stroke: #ffffff;
+  --xy-connectionline-stroke: var(--xy-edge-stroke);
+  --xy-edge-stroke-selected: #5fcbf6;
 }
 
 a {
