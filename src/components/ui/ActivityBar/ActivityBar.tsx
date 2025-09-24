@@ -1,5 +1,4 @@
 import "./activity-bar.css";
-import "../ActivityBarButton/ActivityBarButton.tsx";
 import ActivityBarButton from "../ActivityBarButton/ActivityBarButton.tsx";
 import { useState } from "react";
 import Sidebar from "../Sidebar/Sidebar.tsx";
@@ -16,15 +15,17 @@ export interface ActivityBarProps {
 }
 
 export default function ActivityBar({ activityBarItems }: ActivityBarProps) {
-  const [activeItem, setActiveItem] = useState<ActivityBarItem | null>(null);
+  const [activeItemName, setActiveItemName] = useState<string | null>(null);
 
   const onClickCallback = (item: ActivityBarItem) => {
-    if (activeItem?.itemName === item.itemName) {
-      setActiveItem(null);
+    if (activeItemName === item.itemName) {
+      setActiveItemName(null);
     } else {
-      setActiveItem(item);
+      setActiveItemName(item.itemName);
     }
   };
+
+  const activeItem = activeItemName ? activityBarItems.find((item) => item.itemName === activeItemName) : null;
 
   return (
     <div className="activity-bar-container">
@@ -36,7 +37,7 @@ export default function ActivityBar({ activityBarItems }: ActivityBarProps) {
             displayName={item.nameDisplay}
             symbol={item.symbol}
             onClick={() => onClickCallback(item)}
-            isActive={activeItem?.itemName === item.itemName}
+            isActive={activeItemName === item.itemName}
           />
         ))}
       </div>

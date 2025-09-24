@@ -1,0 +1,51 @@
+.toggle-switch {
+	--switch-width: 40px;
+	--switch-height: 21px;
+	--switch-padding: 2px;
+	--switch-border-width: 1px;
+	--switch-knob-size: calc(var(--switch-height) - 2 * var(--switch-padding) - 2 * var(--switch-border-width));
+  position: relative;
+  display: inline-block;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--background);
+  transition: 0.4s;
+  border-radius: var(--switch-height);
+  border: var(--switch-border-width) solid var(--text-primary);
+}
+
+.toggle-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: var(--switch-knob-size);
+  width: var(--switch-knob-size);
+  left: var(--switch-padding);
+  bottom: var(--switch-padding);
+  background-color: var(--text-primary);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-switch-slider {
+  background-color: var(--background-select);
+}
+
+.toggle-switch input:checked + .toggle-switch-slider:before {
+  transform: translateX(calc(var(--switch-width) - var(--switch-knob-size) - 2 * var(--switch-padding) - 2 * var(--switch-border-width)));
+}

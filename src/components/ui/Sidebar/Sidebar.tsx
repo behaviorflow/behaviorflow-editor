@@ -5,9 +5,11 @@ interface SidebarProps {
   title: string;
   children: React.ReactNode;
   defaultWidth?: number;
+  minWidth?: number;
+  maxWidth?: number;
 }
 
-export default function Sidebar({ title, children, defaultWidth = 250 }: SidebarProps) {
+export default function Sidebar({ title, children, defaultWidth = 250, minWidth = 100, maxWidth = 600 }: SidebarProps) {
   const [width, setWidth] = useState(defaultWidth);
   const [isResizing, setIsResizing] = useState(false);
   const [dragPreviousX, setDragPreviousX] = useState(0);
@@ -26,6 +28,8 @@ export default function Sidebar({ title, children, defaultWidth = 250 }: Sidebar
     (e: MouseEvent) => {
       if (isResizing) {
         const newWidth = width + (e.clientX - dragPreviousX);
+        if (newWidth <= minWidth && e.clientX < dragPreviousX) return;
+        if (newWidth >= maxWidth && e.clientX > dragPreviousX) return;
         setDragPreviousX(e.clientX);
         setWidth(newWidth);
       }

@@ -26,6 +26,7 @@
   --xy-edge-stroke: #00254d;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #e3801e;
+  --xy-minimap-background-color: #858484;
 }
 
 [data-theme='dark'] {
@@ -43,6 +44,7 @@
   --xy-edge-stroke: #ffffff;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #5fcbf6;
+  --xy-minimap-background-color: #59565c;
 }
 
 a {

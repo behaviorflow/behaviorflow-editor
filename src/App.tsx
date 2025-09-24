@@ -23,6 +23,7 @@ import "./components/nodes/behavior-flow-node.css";
 import ActivityBar from "./components/ui/ActivityBar/ActivityBar";
 import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
+import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 
 import { NodeParam, BfNodeAttributes } from "./types";
 
@@ -79,11 +80,6 @@ function FlowContent({ nodeAttributes }) {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
 
-  const switchTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-  };
-
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onConnect = useCallback(
@@ -92,7 +88,7 @@ function FlowContent({ nodeAttributes }) {
         const newEdge = addEdge(connection, edges);
         // Add style to each new edge
         if (Array.isArray(newEdge)) {
-          return newEdge.map(edge => ({
+          return newEdge.map((edge) => ({
             ...edge,
           }));
         }
@@ -145,6 +141,7 @@ function FlowContent({ nodeAttributes }) {
     }
   };
 
+  const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
   const activityBarItems = [
     {
       itemName: "Menu",
@@ -162,15 +159,7 @@ function FlowContent({ nodeAttributes }) {
       itemName: "Settings",
       nameDisplay: "Settings",
       symbol: <Settings />,
-      content: (
-        <div>
-          <button onClick={switchTheme}>
-            {/* Temporary */}
-            Switch to {theme === "light" ? "Dark" : "Light"} Theme
-            {/* todo: fix, so that this item is aware of change, or make drop down */}
-          </button>
-        </div>
-      ),
+      content: <BehaviorFlowSettings setTheme={setTheme} themeStatus={theme} setShowMiniMap={setShowMiniMap} showMiniMapStatus={showMiniMap} />,
     },
   ];
 
@@ -191,12 +180,25 @@ function FlowContent({ nodeAttributes }) {
           onDragOver={handleDragOver}
           fitView>
           <Controls />
-          <MiniMap />
+          {showMiniMap && <MiniMap pannable zoomable nodeColor={nodeColor} />} {/* Todo: Add props to customize MiniMap */}
           <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
         </ReactFlow>
       </div>
     </div>
   );
+}
+
+function nodeColor(node: Node) {
+  switch (node.type) {
+    case 'behaviorFlowNode':
+      return '#6865A5';
+    case 'startNode':
+      return '#6ede87';
+    case 'terminalNode':
+      return '#FF0072';
+    default:
+      return '#6b6b6bff';
+  }
 }
 
 export default function App() {
