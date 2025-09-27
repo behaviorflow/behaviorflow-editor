@@ -1,6 +1,7 @@
 .activity-bar-container {
   display: flex;
   height: 100%;
+  overflow: hidden;
 }
 
 .activity-bar {
@@ -9,6 +10,7 @@
   flex-direction: column;
   background-color: var(--background);
   width: var(--activity-bar-width);
+  height: 100%;
 }
 
 .activity-bar-sidebar {
