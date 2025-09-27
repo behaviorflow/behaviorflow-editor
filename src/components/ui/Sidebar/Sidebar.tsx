@@ -1,15 +1,17 @@
 import "./sidebar.css";
 import React, { useState, useCallback } from "react";
+import { ChevronLeft } from "lucide-react";
 
 interface SidebarProps {
   title: string;
   children: React.ReactNode;
+  closeSidebarHandler: () => void;
   defaultWidth?: number;
   minWidth?: number;
   maxWidth?: number;
 }
 
-export default function Sidebar({ title, children, defaultWidth = 250, minWidth = 100, maxWidth = 600 }: SidebarProps) {
+export default function Sidebar({ title, children, closeSidebarHandler, defaultWidth = 250, minWidth = 100, maxWidth = 600 }: SidebarProps) {
   const [width, setWidth] = useState(defaultWidth);
   const [isResizing, setIsResizing] = useState(false);
   const [dragPreviousX, setDragPreviousX] = useState(0);
@@ -56,7 +58,12 @@ export default function Sidebar({ title, children, defaultWidth = 250, minWidth 
   return (
     <div className={`sidebar-container ${isResizing ? "resizing" : ""}`}>
       <div className="sidebar" style={{ width: width }}>
-        <h2 className="title">{title}</h2>
+        <div className="title-container">
+          <h2 className="title">{title}</h2>
+          <div className="close-button" onClick={closeSidebarHandler}>
+            <ChevronLeft size={18} />
+          </div>
+        </div>
         <div>{children}</div>
       </div>
       <div className="resizer" onMouseDown={handleMouseDown} onDoubleClick={handleDoubleClick} />

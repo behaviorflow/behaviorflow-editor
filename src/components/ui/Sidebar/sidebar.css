@@ -16,9 +16,29 @@
 	padding: 10px;
 }
 
-.title {
+.title-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 5px;
+}
+
+.title {
+	margin: 0;
 	text-align: left;
+}
+
+.close-button {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-primary);
+	opacity: 0.7;
+}
+
+.close-button:hover {
+	opacity: 1.0;
 }
 
 .resizer {

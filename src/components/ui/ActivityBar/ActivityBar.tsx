@@ -42,7 +42,7 @@ export default function ActivityBar({ activityBarItems }: ActivityBarProps) {
         ))}
       </div>
       <div className="activity-bar-sidebar">
-        {activeItem && <Sidebar title={activeItem.itemName}>{activeItem.content}</Sidebar>}
+        {activeItem && <Sidebar title={activeItem.itemName} closeSidebarHandler={() => setActiveItemName(null)}>{activeItem.content}</Sidebar>}
       </div>
     </div>
   );
