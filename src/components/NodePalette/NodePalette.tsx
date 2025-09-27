@@ -1,17 +1,17 @@
 import { useState } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
-import { BfNodeAttributes } from "../../types";
+import { BfNodeTypeAttributes } from "../../types";
 import { CirclePlus, Wrench, FolderPlus } from "lucide-react";
 import "./node-palette.css";
 
 import NewNodeTypeModal from "../NewNodeTypeModal/NewNodeTypeModal";
 
 export interface NodePaletteProps {
-  nodes: BfNodeAttributes[];
+  nodeTypes: BfNodeTypeAttributes[];
 }
 
-export default function NodePalette({ nodes }: NodePaletteProps) {
+export default function NodePalette({ nodeTypes }: NodePaletteProps) {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewNodeTypeModalOpen, setIsNewNodeTypeModalOpen] = useState(false);
@@ -50,9 +50,9 @@ export default function NodePalette({ nodes }: NodePaletteProps) {
         value={searchTerm}
         onChange={handleSearchInputChange}
       />
-      {nodes.map((node) => (
-        <div key={node.nodeType} className="node-palette-item" onClick={() => handleItemClick(node.nodeType)}>
-          <DraggableNodeCard nodeType={node.nodeType} nodeAttributes={node} isSelected={activeItem == node.nodeType} />
+      {nodeTypes.map((node) => (
+        <div key={node.typeId} className="node-palette-item" onClick={() => handleItemClick(node.typeId)}>
+          <DraggableNodeCard nodeType={node} isSelected={activeItem == node.typeId} />
         </div>
       ))}
       <NewNodeTypeModal isOpen={isNewNodeTypeModalOpen} onClose={() => setIsNewNodeTypeModalOpen(false)} />

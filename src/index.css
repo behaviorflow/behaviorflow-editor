@@ -44,7 +44,7 @@
   --xy-edge-stroke: #ffffff;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #5fcbf6;
-  --xy-minimap-background-color: #59565c;
+  --xy-minimap-background-color: #686868;
 }
 
 a {

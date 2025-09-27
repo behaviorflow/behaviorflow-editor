@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -17,7 +17,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import BehaviorFlowNode from "./components/nodes/BehaviorFlowNode";
 import StartNode from "./components/nodes/StartNode";
-import TerminalNode from "./components/nodes/TerminalNode";
+import SuccessNode from "./components/nodes/SuccessNode";
+import FailureNode from "./components/nodes/FailureNode";
 import "./components/nodes/behavior-flow-node.css";
 
 import ActivityBar from "./components/ui/ActivityBar/ActivityBar";
@@ -25,7 +26,7 @@ import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 
-import { NodeParam, BfNodeAttributes } from "./types";
+import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes } from "./types";
 
 import { v4 as uuid } from "uuid";
 
@@ -49,15 +50,17 @@ const initialNodes = [
     position: { x: 100, y: -50 },
     data: {
       nodeId: "Move to Charger",
-      nodeType: "Move to Position",
-      inParams: [{ paramName: "Target Pose" }, { paramName: "Speed" }],
-      outParams: [{ paramName: "Recovery Count" }],
-      outPorts: ["Success", "Failure"],
+      nodeType: {
+        typeId: "Move to Position",
+        inParams: [{ paramName: "Target Pose" }, { paramName: "Speed" }],
+        outParams: [{ paramName: "Recovery Count" }],
+        outPorts: ["Success", "Failure"],
+      }
     },
   },
   {
     id: "failure",
-    type: "terminalNode",
+    type: "failureNode",
     position: { x: 400, y: 20 },
     data: {
       label: "Failure",
@@ -65,18 +68,28 @@ const initialNodes = [
   },
   {
     id: "success",
-    type: "terminalNode",
+    type: "successNode",
     position: { x: 400, y: -50 },
     data: {
       label: "Success",
     },
   },
 ];
-const nodeTypes = { behaviorFlowNode: BehaviorFlowNode, startNode: StartNode, terminalNode: TerminalNode };
+const nodeTypes = {
+  behaviorFlowNode: BehaviorFlowNode,
+  startNode: StartNode,
+  successNode: SuccessNode,
+  failureNode: FailureNode,
+};
 
 const initialEdges: Edge[] = [];
 
-function FlowContent({ nodeAttributes }) {
+interface FlowContentProps {
+  initialBfNodeTypes: BfNodeTypeAttributes[];
+}
+
+function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
+  const [bfNodeTypes, setBfNodeTypes] = useState<BfNodeTypeAttributes[]>(initialBfNodeTypes);
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
 
@@ -98,13 +111,17 @@ function FlowContent({ nodeAttributes }) {
   );
 
   const insertNode = useCallback(
-    (nodeAttributes: BfNodeAttributes, position: { x: number; y: number }) => {
-      nodeAttributes.nodeId = nodeAttributes.nodeType + "-" + uuid();
+    (nodeType: BfNodeTypeAttributes, position: { x: number; y: number }) => {
+      const nodeId = nodeType.typeId + "-" + uuid();
       const newNode = {
-        id: nodeAttributes.nodeId,
+        id: nodeId,
         type: "behaviorFlowNode", // revisit if needed
         position,
-        data: nodeAttributes,
+        draggable: true,
+        data: {
+          nodeId: nodeId,
+          nodeType: nodeType,
+        }
       };
       setNodes((nds) => nds.concat(newNode));
     },
@@ -114,26 +131,26 @@ function FlowContent({ nodeAttributes }) {
   const { screenToFlowPosition } = useReactFlow();
 
   // useCallback?
-  const handleDragOver = (event) => {
+  const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
   };
 
   // useCallback?
-  const handleDrop = (event) => {
+  const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     const data = event.dataTransfer.getData("application/json");
 
     if (data) {
       try {
-        const nodeAttributes = JSON.parse(data);
-        if (nodeAttributes) {
+        const node = JSON.parse(data);
+        if (node) {
           const position = screenToFlowPosition({
             x: event.clientX,
             y: event.clientY,
           });
 
-          insertNode(nodeAttributes, position);
+          insertNode(node, position);
         }
       } catch (e) {
         console.error("Exception on drop:", e);
@@ -153,13 +170,20 @@ function FlowContent({ nodeAttributes }) {
       itemName: "Node Palette",
       nameDisplay: "Nodes",
       symbol: <Workflow />,
-      content: <NodePalette nodes={nodeAttributes} />,
+      content: <NodePalette nodeTypes={initialBfNodeTypes} />,
     },
     {
       itemName: "Settings",
       nameDisplay: "Settings",
       symbol: <Settings />,
-      content: <BehaviorFlowSettings setTheme={setTheme} themeStatus={theme} setShowMiniMap={setShowMiniMap} showMiniMapStatus={showMiniMap} />,
+      content: (
+        <BehaviorFlowSettings
+          setTheme={setTheme}
+          themeStatus={theme}
+          setShowMiniMap={setShowMiniMap}
+          showMiniMapStatus={showMiniMap}
+        />
+      ),
     },
   ];
 
@@ -180,7 +204,8 @@ function FlowContent({ nodeAttributes }) {
           onDragOver={handleDragOver}
           fitView>
           <Controls />
-          {showMiniMap && <MiniMap pannable zoomable nodeColor={nodeColor} />} {/* Todo: Add props to customize MiniMap */}
+          {showMiniMap && <MiniMap pannable zoomable nodeColor={nodeColor} />}{" "}
+          {/* Todo: Add props to customize MiniMap */}
           <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
         </ReactFlow>
       </div>
@@ -188,38 +213,37 @@ function FlowContent({ nodeAttributes }) {
   );
 }
 
-function nodeColor(node: Node) {
+function nodeColor(node: { type?: string }) {
   switch (node.type) {
-    case 'behaviorFlowNode':
-      return '#6865A5';
-    case 'startNode':
-      return '#6ede87';
-    case 'terminalNode':
-      return '#FF0072';
+    case "behaviorFlowNode":
+      return "#7c36e5ff";
+    case "startNode":
+      return "#6ed5deff";
+    case "successNode":
+      return "#6ede87";
+    case "failureNode":
+      return "#d64c4c";
     default:
-      return '#6b6b6bff';
+      return "#6b6b6bff";
   }
 }
 
 export default function App() {
-  const nodeAttributes: BfNodeAttributes[] = [
+  const initialBfNodeTypes: BfNodeTypeAttributes[] = [
     {
-      nodeId: "",
-      nodeType: "Do Thing",
+      typeId: "Do Thing",
       inParams: [],
       outParams: [],
       outPorts: ["Success", "Fail"],
     },
     {
-      nodeId: "",
-      nodeType: "Check Thing",
+      typeId: "Check Thing",
       inParams: [],
       outParams: [],
       outPorts: ["Success", "Fail"],
     },
     {
-      nodeId: "",
-      nodeType: "Move To Charger",
+      typeId: "Move to Charger",
       inParams: [],
       outParams: [],
       outPorts: ["Success", "Fail"],
@@ -228,7 +252,7 @@ export default function App() {
 
   return (
     <ReactFlowProvider>
-      <FlowContent nodeAttributes={nodeAttributes} />
+      <FlowContent initialBfNodeTypes={initialBfNodeTypes} />
     </ReactFlowProvider>
   );
 }
