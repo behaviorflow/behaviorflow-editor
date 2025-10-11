@@ -27,8 +27,9 @@ import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 
 import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes } from "./types";
+import { useNodeTypes } from "./hooks";
 
-import { v4 as uuid } from "uuid";
+import { v4 as uuid } from "uuid";``
 
 import useLocalStorage from "use-local-storage";
 
@@ -55,7 +56,7 @@ const initialNodes = [
         inParams: [{ paramName: "Target Pose" }, { paramName: "Speed" }],
         outParams: [{ paramName: "Recovery Count" }],
         outPorts: ["Success", "Failure"],
-      }
+      },
     },
   },
   {
@@ -89,12 +90,14 @@ interface FlowContentProps {
 }
 
 function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
-  const [bfNodeTypes, setBfNodeTypes] = useState<BfNodeTypeAttributes[]>(initialBfNodeTypes);
+  const { addNodeType, deleteNodeType, editNodeType, getOrderedNodeTypes, getNodeTypeById, hasNodeType } =
+    useNodeTypes(initialBfNodeTypes);
+
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
-
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
   const onConnect = useCallback(
     (connection: Edge | Connection) =>
       setEdges((edges) => {
@@ -111,21 +114,24 @@ function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
   );
 
   const insertNode = useCallback(
-    (nodeType: BfNodeTypeAttributes, position: { x: number; y: number }) => {
-      const nodeId = nodeType.typeId + "-" + uuid();
+    (nodeTypeId: string, position: { x: number; y: number }) => {
+      const nodeId = nodeTypeId + "-" + uuid();
       const newNode = {
         id: nodeId,
         type: "behaviorFlowNode", // revisit if needed
         position,
         draggable: true,
         data: {
-          nodeId: nodeId,
-          nodeType: nodeType,
-        }
+          nodeAttributes: {
+            nodeId: nodeId,
+            nodeTypeId: nodeTypeId,
+          },
+          getNodeTypeById,
+        },
       };
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((nds) => [...nds, newNode as any]);
     },
-    [setNodes]
+    [setNodes, getNodeTypeById]
   );
 
   const { screenToFlowPosition } = useReactFlow();
@@ -170,7 +176,14 @@ function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
       itemName: "Node Palette",
       nameDisplay: "Nodes",
       symbol: <Workflow />,
-      content: <NodePalette nodeTypes={initialBfNodeTypes} />,
+      content: (
+        <NodePalette
+          getOrderedNodeTypes={getOrderedNodeTypes}
+          addNodeType={addNodeType}
+          deleteNodeType={deleteNodeType}
+          editNodeType={editNodeType}
+        />
+      ),
     },
     {
       itemName: "Settings",

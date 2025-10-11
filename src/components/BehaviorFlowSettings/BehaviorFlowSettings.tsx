@@ -21,7 +21,7 @@ export default function BehaviorFlowSettings({
       <div className="behavior-flow-settings-list">
         <div className="behavior-flow-settings-item">
           <div className="toggle-switch-item">
-            <span>Dark Theme</span>
+            <span>Dark Mode</span>
             <ToggleSwitch isOn={themeStatus === "dark"} onChange={(checked) => setTheme(checked ? "dark" : "light")} />
           </div>
         </div>

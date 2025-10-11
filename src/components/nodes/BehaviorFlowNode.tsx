@@ -1,13 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
-import { BfNodeAttributes, NodeParam } from "../../types";
+import { BfNodeAttributes, BfNodeTypeAttributes, NodeParam } from "../../types";
 
-export type BehaviorFlowNode = Node<BfNodeAttributes>;
+export type BehaviorFlowNodeProps = {
+  nodeAttributes: BfNodeAttributes;
+  getNodeTypeById: (typeId: string) => BfNodeTypeAttributes | undefined;
+};
+
+export type BehaviorFlowNode = Node<BehaviorFlowNodeProps>;
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
-  const { nodeId, nodeType } = props.data || {};
-  if (!nodeId || !nodeType) {
+  const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
+  if (!nodeId || !nodeTypeId) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
+  }
+  const nodeType = props.data.getNodeTypeById(nodeTypeId);
+  if (!nodeType) {
+    return <div className="behavior-flow-node error">Unknown node type: {nodeTypeId}</div>;
   }
 
   return (

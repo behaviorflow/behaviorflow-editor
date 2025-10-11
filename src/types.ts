@@ -17,5 +17,5 @@ export type BfNodeTypeAttributes = {
 
 export type BfNodeAttributes = {
   nodeId: string;
-  nodeType: BfNodeTypeAttributes;
-};
+  nodeTypeId: string;
+}

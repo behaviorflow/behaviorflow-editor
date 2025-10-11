@@ -1,3 +1,10 @@
+.node-palette {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
 .node-palette-controls {
   text-align: center;
   margin-bottom: 10px;

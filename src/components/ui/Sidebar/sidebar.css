@@ -18,6 +18,12 @@
 	overflow-y: auto;
 }
 
+.sidebar-children {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+}
+
 .title-container {
 	display: flex;
 	justify-content: space-between;

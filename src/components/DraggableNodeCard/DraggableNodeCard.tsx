@@ -13,7 +13,7 @@ export default function DraggableNodeCard({ nodeType, isSelected = false }: Drag
   const [showCallout, setShowCallout] = useState(false);
   const calloutTimer = useRef<number | null>(null);
   const handleDragStart = (e) => {
-    e.dataTransfer.setData("application/json", JSON.stringify(nodeType));
+    e.dataTransfer.setData("application/json", JSON.stringify(nodeType.typeId));
     if (calloutTimer.current) {
       window.clearTimeout(calloutTimer.current);
     }
@@ -46,8 +46,11 @@ export default function DraggableNodeCard({ nodeType, isSelected = false }: Drag
           <BehaviorFlowNode
             id={nodeType.typeId + "callout"}
             data={{
-              nodeId: nodeType.typeId + "callout",
-              nodeType: nodeType,
+              nodeAttributes: {
+                nodeId: nodeType.typeId + "callout",
+                nodeTypeId: nodeType.typeId,
+              },
+              getNodeTypeById: (typeId: string) => nodeType,
             }}
             type="behaviorFlowNode"
             dragging={false}

@@ -64,7 +64,7 @@ export default function Sidebar({ title, children, closeSidebarHandler, defaultW
             <ChevronLeft size={18} />
           </div>
         </div>
-        <div>{children}</div>
+        <div className="sidebar-children">{children}</div>
       </div>
       <div className="resizer" onMouseDown={handleMouseDown} onDoubleClick={handleDoubleClick} />
     </div>
