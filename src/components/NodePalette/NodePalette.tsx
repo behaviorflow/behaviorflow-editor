@@ -108,11 +108,13 @@ export default function NodePalette({
         value={searchTerm}
         onChange={handleSearchInputChange}
       />
-      {nodeTypes.map((nodeType) => (
-        <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType.typeId)}>
-          <DraggableNodeCard nodeType={nodeType} isSelected={activeItem == nodeType.typeId} />
-        </div>
-      ))}
+      <div className="node-palette-list">
+        {nodeTypes.map((nodeType) => (
+          <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType.typeId)}>
+            <DraggableNodeCard nodeType={nodeType} isSelected={activeItem == nodeType.typeId} />
+          </div>
+        ))}
+      </div>
       <NewNodeTypeModal
         isOpen={isNewNodeTypeModalOpen}
         onClose={() => setIsNewNodeTypeModalOpen(false)}
