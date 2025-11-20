@@ -24,7 +24,7 @@
 .modal-window {
 	background-color: var(--background);
 	border-radius: 8px;
-	/* border: 1px solid var(--text-primary); */
+	border: 1px solid var(--text-primary);
 	max-width: 448px;
 	width: 100%;
 	max-height: 90vh;
@@ -66,4 +66,29 @@
 
 .modal-body {
 	padding: 16px;
+}
+
+.modal-buttons {
+	display: flex;
+	gap: 0.5em;
+	justify-content: flex-end;
+	margin-top: 1em;
+}
+
+.modal-buttons button {
+	background-color: var(--background-secondary);
+	border: 1px solid transparent;
+	border-radius: 0.25em;
+	padding: 0.5em 1em;
+	cursor: pointer;
+	color: var(--text-primary);
+}
+
+.modal-buttons button:hover:not(:disabled) {
+	filter: brightness(1.2);
+}
+
+.modal-buttons button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
 }

@@ -29,7 +29,7 @@ import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlow
 import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes } from "./types";
 import { useNodeTypes } from "./hooks";
 
-import { v4 as uuid } from "uuid";``
+import { v4 as uuid } from "uuid";
 
 import useLocalStorage from "use-local-storage";
 

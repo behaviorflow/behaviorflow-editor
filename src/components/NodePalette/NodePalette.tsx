@@ -55,6 +55,16 @@ export default function NodePalette({
     }
   };
 
+  const newNodeTypeCallback = (nodeTypeName: string) => {
+    const newNodeType: BfNodeTypeAttributes = {
+      typeId: nodeTypeName,
+      inParams: [],
+      outParams: [],
+      outPorts: [""],
+    };
+    addNodeType(newNodeType);
+  };
+
   return (
     <div className="node-palette" onClick={handleBackgroundClick} ref={nodePaletteRef}>
       <div className="node-palette-controls">
@@ -103,7 +113,11 @@ export default function NodePalette({
           <DraggableNodeCard nodeType={nodeType} isSelected={activeItem == nodeType.typeId} />
         </div>
       ))}
-      <NewNodeTypeModal isOpen={isNewNodeTypeModalOpen} onClose={() => setIsNewNodeTypeModalOpen(false)} />
+      <NewNodeTypeModal
+        isOpen={isNewNodeTypeModalOpen}
+        onClose={() => setIsNewNodeTypeModalOpen(false)}
+        onCreateNodeType={newNodeTypeCallback}
+      />
     </div>
   );
 }
