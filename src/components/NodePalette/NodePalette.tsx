@@ -55,12 +55,12 @@ export default function NodePalette({
     }
   };
 
-  const newNodeTypeCallback = (nodeTypeName: string) => {
+  const newNodeTypeCallback = (nodeTypeName: string, outPorts: string[]) => {
     const newNodeType: BfNodeTypeAttributes = {
       typeId: nodeTypeName,
       inParams: [],
       outParams: [],
-      outPorts: [""],
+      outPorts: outPorts,
     };
     addNodeType(newNodeType);
   };

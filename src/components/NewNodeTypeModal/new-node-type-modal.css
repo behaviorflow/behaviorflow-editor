@@ -1,12 +1,13 @@
 .field-label {
   color: var(--text-primary);
-  display: block;
-  margin-bottom: 0.5em;
+  display: inline-block;
+  margin-right: 0.5em;
   font-weight: 500;
 }
 
 .node-type-name-input {
-  width: 100%;
+  width: 22ch;
+  max-width: 100%;
   padding: 0.5em 0.75em;
   font-size: 1em;
   font-family: inherit;
@@ -25,4 +26,8 @@
 
 .node-type-name-input::placeholder {
   color: var(--text-disabled);
+}
+
+.radio-group-container {
+  margin-top: 1em;
 }

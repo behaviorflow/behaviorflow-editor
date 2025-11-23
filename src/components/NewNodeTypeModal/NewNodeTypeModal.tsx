@@ -1,15 +1,31 @@
 import Modal from "../ui/Modal/Modal";
+import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
 import "./new-node-type-modal.css";
 
 interface NewNodeTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateNodeType: (nodeTypeName: string) => void;
+  onCreateNodeType: (nodeTypeName: string, outPorts: string[]) => void;
 }
+
+interface CategoryConfig {
+  id: string;
+  label: string;
+  outPorts: string[];
+}
+
+const CategoryConfigs: CategoryConfig[] = [
+  { id: "Simple", label: "Simple", outPorts: [""] },
+  { id: "Boolean", label: "Boolean (True/False)", outPorts: ["True", "False"] },
+  { id: "Action", label: "Action (Success/Failure)", outPorts: ["Success", "Failure"] },
+]; // todo: These should be more global designators for coloring, etc.
+
+const DefaultCategory = CategoryConfigs[0];
 
 const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModalProps) => {
   const [nodeTypeName, setNodeTypeName] = useState("");
+  const [nodeCategoryId, setNodeCategoryId] = useState(DefaultCategory.id);
 
   const handleNameInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNodeTypeName(event.target.value);
@@ -17,14 +33,17 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
 
   const handleCreate = () => {
     if (nodeTypeName.trim()) {
-      onCreateNodeType(nodeTypeName);
+      const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DEFAULT_CATEGORY;
+      onCreateNodeType(nodeTypeName, category.outPorts);
       setNodeTypeName("");
+      setNodeCategoryId(DefaultCategory.id);
       onClose();
     }
   };
 
   const handleCancel = () => {
     setNodeTypeName("");
+    setNodeCategoryId(DefaultCategory.id);
     onClose();
   };
 
@@ -41,6 +60,13 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
             onChange={handleNameInputChange}
           />
         </div>
+        <RadioGroup
+          label="Category:"
+          name="nodeCategory"
+          options={CategoryConfigs.map((c) => ({ value: c.id, label: c.label }))}
+          value={nodeCategoryId}
+          onChange={setNodeCategoryId}
+        />
         <div className="modal-buttons">
           <button className="create-button" onClick={handleCreate} disabled={!nodeTypeName.trim()}>
             Create

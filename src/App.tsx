@@ -37,6 +37,13 @@ import "./App.css";
 
 import { Menu, Workflow, Settings } from "lucide-react";
 
+const reactFlowNodeTypes = {
+  behaviorFlowNode: BehaviorFlowNode,
+  startNode: StartNode,
+  successNode: SuccessNode,
+  failureNode: FailureNode,
+};
+
 const initialNodes = [
   {
     id: "start",
@@ -44,20 +51,6 @@ const initialNodes = [
     position: { x: 0, y: 0 },
     draggable: false,
     data: {},
-  },
-  {
-    id: "node-1",
-    type: "behaviorFlowNode",
-    position: { x: 100, y: -50 },
-    data: {
-      nodeId: "Move to Charger",
-      nodeType: {
-        typeId: "Move to Position",
-        inParams: [{ paramName: "Target Pose" }, { paramName: "Speed" }],
-        outParams: [{ paramName: "Recovery Count" }],
-        outPorts: ["Success", "Failure"],
-      },
-    },
   },
   {
     id: "failure",
@@ -76,14 +69,30 @@ const initialNodes = [
     },
   },
 ];
-const nodeTypes = {
-  behaviorFlowNode: BehaviorFlowNode,
-  startNode: StartNode,
-  successNode: SuccessNode,
-  failureNode: FailureNode,
-};
 
 const initialEdges: Edge[] = [];
+
+const initialBfNodeTypes: BfNodeTypeAttributes[] = [
+  {
+    typeId: "Do Thing",
+    inParams: [],
+    outParams: [],
+    outPorts: ["Success", "Fail"],
+  },
+  {
+    typeId: "Check Thing",
+    inParams: [],
+    outParams: [],
+    outPorts: ["Success", "Fail"],
+  },
+  {
+    typeId: "Move to Charger",
+    inParams: [],
+    outParams: [],
+    outPorts: ["Success", "Fail"],
+  },
+];
+
 
 interface FlowContentProps {
   initialBfNodeTypes: BfNodeTypeAttributes[];
@@ -212,7 +221,7 @@ function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodeTypes={nodeTypes}
+          nodeTypes={reactFlowNodeTypes}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           fitView>
@@ -242,27 +251,6 @@ function nodeColor(node: { type?: string }) {
 }
 
 export default function App() {
-  const initialBfNodeTypes: BfNodeTypeAttributes[] = [
-    {
-      typeId: "Do Thing",
-      inParams: [],
-      outParams: [],
-      outPorts: ["Success", "Fail"],
-    },
-    {
-      typeId: "Check Thing",
-      inParams: [],
-      outParams: [],
-      outPorts: ["Success", "Fail"],
-    },
-    {
-      typeId: "Move to Charger",
-      inParams: [],
-      outParams: [],
-      outPorts: ["Success", "Fail"],
-    },
-  ];
-
   return (
     <ReactFlowProvider>
       <FlowContent initialBfNodeTypes={initialBfNodeTypes} />
