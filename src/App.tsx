@@ -1,31 +1,17 @@
 import React, { useCallback, useState } from "react";
 import {
-  ReactFlow,
-  ReactFlowProvider,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  Edge,
-  Connection,
-  useReactFlow,
-  NodeToolbar,
-  BackgroundVariant,
+  Edge as ReactFlowEdge,
+  Node as ReactFlowNode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import BehaviorFlowNode from "./components/nodes/BehaviorFlowNode";
-import StartNode from "./components/nodes/StartNode";
-import SuccessNode from "./components/nodes/SuccessNode";
-import FailureNode from "./components/nodes/FailureNode";
+
 import "./components/nodes/behavior-flow-node.css";
 
 import ActivityBar from "./components/ui/ActivityBar/ActivityBar";
 import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
-
+import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
 import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes } from "./types";
 import { useNodeTypes } from "./hooks";
 
@@ -37,14 +23,7 @@ import "./App.css";
 
 import { Menu, Workflow, Settings } from "lucide-react";
 
-const reactFlowNodeTypes = {
-  behaviorFlowNode: BehaviorFlowNode,
-  startNode: StartNode,
-  successNode: SuccessNode,
-  failureNode: FailureNode,
-};
-
-const initialNodes = [
+const initialNodes: ReactFlowNode[] = [
   {
     id: "start",
     type: "startNode",
@@ -70,7 +49,7 @@ const initialNodes = [
   },
 ];
 
-const initialEdges: Edge[] = [];
+const initialEdges: ReactFlowEdge[] = [];
 
 const initialBfNodeTypes: BfNodeTypeAttributes[] = [
   {
@@ -93,87 +72,14 @@ const initialBfNodeTypes: BfNodeTypeAttributes[] = [
   },
 ];
 
-
-interface FlowContentProps {
-  initialBfNodeTypes: BfNodeTypeAttributes[];
-}
-
-function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
+export default function App() {
   const { addNodeType, deleteNodeType, editNodeType, getOrderedNodeTypes, getNodeTypeById, hasNodeType } =
     useNodeTypes(initialBfNodeTypes);
 
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const onConnect = useCallback(
-    (connection: Edge | Connection) =>
-      setEdges((edges) => {
-        const newEdge = addEdge(connection, edges);
-        // Add style to each new edge
-        if (Array.isArray(newEdge)) {
-          return newEdge.map((edge) => ({
-            ...edge,
-          }));
-        }
-        return newEdge;
-      }),
-    [setEdges]
-  );
-
-  const insertNode = useCallback(
-    (nodeTypeId: string, position: { x: number; y: number }) => {
-      const nodeId = nodeTypeId + "-" + uuid();
-      const newNode = {
-        id: nodeId,
-        type: "behaviorFlowNode", // revisit if needed
-        position,
-        draggable: true,
-        data: {
-          nodeAttributes: {
-            nodeId: nodeId,
-            nodeTypeId: nodeTypeId,
-          },
-          getNodeTypeById,
-        },
-      };
-      setNodes((nds) => [...nds, newNode as any]);
-    },
-    [setNodes, getNodeTypeById]
-  );
-
-  const { screenToFlowPosition } = useReactFlow();
-
-  // useCallback?
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
-  };
-
-  // useCallback?
-  const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    const data = event.dataTransfer.getData("application/json");
-
-    if (data) {
-      try {
-        const node = JSON.parse(data);
-        if (node) {
-          const position = screenToFlowPosition({
-            x: event.clientX,
-            y: event.clientY,
-          });
-
-          insertNode(node, position);
-        }
-      } catch (e) {
-        console.error("Exception on drop:", e);
-      }
-    }
-  };
-
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
+  
   const activityBarItems = [
     {
       itemName: "Menu",
@@ -209,51 +115,39 @@ function FlowContent({ initialBfNodeTypes }: FlowContentProps) {
     },
   ];
 
+  const generateReactNode = useCallback(
+    (nodeTypeId: string, position: { x: number; y: number }): ReactFlowNode => {
+      const nodeId = nodeTypeId + "-" + uuid();
+      return {
+        id: nodeId,
+        type: "behaviorFlowNode", // revisit if needed
+        position,
+        draggable: true,
+        data: {
+          nodeAttributes: {
+            nodeId: nodeId,
+            nodeTypeId: nodeTypeId,
+          },
+          getNodeTypeById,
+        },
+      };
+    },
+    [getNodeTypeById]
+  );
+
   return (
     <div className="app" data-theme={theme}>
       <div className="activity-bar-container">
         <ActivityBar activityBarItems={activityBarItems} />
       </div>
       <div className="react-flow-container">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={reactFlowNodeTypes}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          fitView>
-          <Controls />
-          {showMiniMap && <MiniMap pannable zoomable nodeColor={nodeColor} />}{" "}
-          {/* Todo: Add props to customize MiniMap */}
-          <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
-        </ReactFlow>
+        <ReactFlowComponent
+          initialNodes={initialNodes}
+          initialEdges={initialEdges}
+          showMiniMap={showMiniMap}
+          generateReactNode={generateReactNode}
+        />
       </div>
     </div>
-  );
-}
-
-function nodeColor(node: { type?: string }) {
-  switch (node.type) {
-    case "behaviorFlowNode":
-      return "#7c36e5ff";
-    case "startNode":
-      return "#6ed5deff";
-    case "successNode":
-      return "#6ede87";
-    case "failureNode":
-      return "#d64c4c";
-    default:
-      return "#6b6b6bff";
-  }
-}
-
-export default function App() {
-  return (
-    <ReactFlowProvider>
-      <FlowContent initialBfNodeTypes={initialBfNodeTypes} />
-    </ReactFlowProvider>
   );
 }
