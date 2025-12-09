@@ -14,10 +14,6 @@ export interface UseNodeTypesReturn {
   hasNodeType: (typeId: string) => boolean;
 }
 
-/**
- * Custom hook for managing node types with efficient CRUD operations
- * Uses a Map for O(1) lookups/edits and maintains insertion order
- */
 export function useNodeTypes(initialNodeTypes: BfNodeTypeAttributes[]): UseNodeTypesReturn {
   const [nodeTypes, setNodeTypes] = useState<Map<string, BfNodeTypeAttributes>>(
     new Map(initialNodeTypes.map((nodeType) => [nodeType.typeId, nodeType]))

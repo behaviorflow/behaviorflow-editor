@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
-import { BfNodeTypeAttributes } from "../../types";
+import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
 import { CirclePlus, Wrench, FolderPlus, Trash2 } from "lucide-react";
 import "./node-palette.css";
 
@@ -22,11 +22,12 @@ export default function NodePalette({
   deleteNodeType,
   editNodeType,
 }: NodePaletteProps) {
-  const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [activeItem, setActiveItem] = useState<BfNodeTypeAttributes | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewNodeTypeModalOpen, setIsNewNodeTypeModalOpen] = useState(false);
   const nodePaletteRef = useRef<HTMLDivElement>(null);
   const nodeTypes = getOrderedNodeTypes();
+  const isEditableNodeSelected = activeItem != null && !activeItem.isReadOnly;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,7 +42,7 @@ export default function NodePalette({
     };
   }, []);
 
-  const handleItemClick = (nodeType: string) => {
+  const handleItemClick = (nodeType: BfNodeTypeAttributes) => {
     setActiveItem(nodeType);
   };
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,12 +56,14 @@ export default function NodePalette({
     }
   };
 
-  const newNodeTypeCallback = (nodeTypeName: string, outPorts: string[]) => {
+  const newNodeTypeCallback = (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => {
     const newNodeType: BfNodeTypeAttributes = {
       typeId: nodeTypeName,
       inParams: [],
       outParams: [],
       outPorts: outPorts,
+      isReadOnly: false,
+      category: category,
     };
     addNodeType(newNodeType);
   };
@@ -80,25 +83,25 @@ export default function NodePalette({
         />
         <SimpleSymbolButton
           onClick={() => {
-            if (activeItem) {
+            if (isEditableNodeSelected) {
               // TODO: Implement edit modal
-              console.log("Edit node type:", activeItem);
+              console.log("Edit node type:", activeItem.typeId);
             }
           }}
           buttonName="Edit Node Type"
           symbol={<Wrench />}
-          isEnabled={activeItem != null}
+          isEnabled={isEditableNodeSelected}
         />
         <SimpleSymbolButton
           onClick={() => {
-            if (activeItem) {
-              deleteNodeType(activeItem);
+            if (isEditableNodeSelected) {
+              deleteNodeType(activeItem.typeId);
               setActiveItem(null);
             }
           }}
           buttonName="Delete Node Type"
           symbol={<Trash2 />}
-          isEnabled={activeItem != null}
+          isEnabled={isEditableNodeSelected}
         />
       </div>
       <input
@@ -110,8 +113,8 @@ export default function NodePalette({
       />
       <div className="node-palette-list">
         {nodeTypes.map((nodeType) => (
-          <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType.typeId)}>
-            <DraggableNodeCard nodeType={nodeType} isSelected={activeItem == nodeType.typeId} />
+          <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType)}>
+            <DraggableNodeCard nodeType={nodeType} isReadOnly={nodeType.isReadOnly} isSelected={activeItem?.typeId === nodeType.typeId} />
           </div>
         ))}
       </div>

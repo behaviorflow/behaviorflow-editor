@@ -1,15 +1,16 @@
 import { useState, useRef } from "react";
-import { GripVertical } from "lucide-react";
+import { GripVertical, LockKeyhole } from "lucide-react";
 import { BfNodeTypeAttributes } from "../../types";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import "./draggable-node-card.css";
 
 interface DraggableNodeCardProps {
   nodeType: BfNodeTypeAttributes;
+  isReadOnly: boolean;
   isSelected?: boolean;
 }
 
-export default function DraggableNodeCard({ nodeType, isSelected = false }: DraggableNodeCardProps) {
+export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = false }: DraggableNodeCardProps) {
   const [showCallout, setShowCallout] = useState(false);
   const calloutTimer = useRef<number | null>(null);
   const handleDragStart = (e) => {
@@ -40,27 +41,30 @@ export default function DraggableNodeCard({ nodeType, isSelected = false }: Drag
         onMouseLeave={handleMouseLeave}>
         <GripVertical className="draggable-node-card-grip" />
         <span className="draggable-node-card-text">{nodeType.typeId}</span>
+        {isReadOnly && <LockKeyhole className="draggable-node-card-lock-icon" />}
       </div>
-      {showCallout && (
-        <div className="draggable-node-card-callout">
-          <BehaviorFlowNode
-            id={nodeType.typeId + "callout"}
-            data={{
-              nodeAttributes: {
-                nodeId: nodeType.typeId + "callout",
-                nodeTypeId: nodeType.typeId,
-              },
-              getNodeTypeById: (typeId: string) => nodeType,
-            }}
-            type="behaviorFlowNode"
-            dragging={false}
-            zIndex={1}
-            isConnectable={false}
-            positionAbsoluteX={0}
-            positionAbsoluteY={0}
-          />
+      {showCallout && <DraggableNodeCardCallout nodeType={nodeType} />}
+    </div>
+  );
+}
+
+function DraggableNodeCardCallout({ nodeType }: { nodeType: BfNodeTypeAttributes }) {
+  return (
+    <div className="draggable-node-card-callout">
+      <div className="draggable-node-card-callout-title">{nodeType.typeId}</div>
+      <div className="draggable-node-card-callout-content">
+        <div className="draggable-node-card-callout-section">
+          <strong>In Params:</strong>{" "}
+          {nodeType.inParams.length > 0 ? nodeType.inParams.map((p) => p.paramName).join(", ") : "None"}
         </div>
-      )}
+        <div className="draggable-node-card-callout-section">
+          <strong>Out Params:</strong>{" "}
+          {nodeType.outParams.length > 0 ? nodeType.outParams.map((p) => p.paramName).join(", ") : "None"}
+        </div>
+        <div className="draggable-node-card-callout-section">
+          <strong>Out Ports:</strong> {nodeType.outPorts.length > 0 ? nodeType.outPorts.join(", ") : "None"}
+        </div>
+      </div>
     </div>
   );
 }

@@ -52,6 +52,13 @@
   border: var(--node-border);
 }
 
+.node-header--no-content {
+  border-bottom-left-radius: var(--node-border-radius);
+  border-bottom-right-radius: var(--node-border-radius);
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
 .name-label {
   font-size: 12.5px;
 }

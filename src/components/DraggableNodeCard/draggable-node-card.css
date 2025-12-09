@@ -35,6 +35,15 @@
   vertical-align: middle;
 }
 
+.draggable-node-card-lock-icon {
+  width: 0.8em;
+  height: 0.8em;
+  color: var(--text-secondary);
+  vertical-align: middle;
+  margin-left: auto;
+  padding-right: 0.2em;
+}
+
 .draggable-node-card-callout {
   position: absolute;
   background-color: var(--background-hover);

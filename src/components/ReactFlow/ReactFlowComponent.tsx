@@ -18,16 +18,12 @@ import {
 import "@xyflow/react/dist/style.css";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import StartNode from "../nodes/StartNode";
-import SuccessNode from "../nodes/SuccessNode";
-import FailureNode from "../nodes/FailureNode";
 import { BfNodeTypeAttributes } from "../../types";
 import "./react-flow.css";
 
 const reactFlowNodeTypes = {
   behaviorFlowNode: BehaviorFlowNode,
-  startNode: StartNode,
-  successNode: SuccessNode,
-  failureNode: FailureNode,
+  startNode: StartNode, //todo: consider replacing with BehaviorFlowNode
 };
 
 export interface ReactFlowComponentProps {

@@ -33,4 +33,5 @@
 
 .node-palette-item {
   text-align: left;
+  position: relative;
 }

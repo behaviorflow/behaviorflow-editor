@@ -1,8 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  Edge as ReactFlowEdge,
-  Node as ReactFlowNode,
-} from "@xyflow/react";
+import { Edge as ReactFlowEdge, Node as ReactFlowNode } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import "./components/nodes/behavior-flow-node.css";
@@ -12,7 +9,7 @@ import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
-import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes } from "./types";
+import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
 import { useNodeTypes } from "./hooks";
 
 import { v4 as uuid } from "uuid";
@@ -31,44 +28,26 @@ const initialNodes: ReactFlowNode[] = [
     draggable: false,
     data: {},
   },
-  {
-    id: "failure",
-    type: "failureNode",
-    position: { x: 400, y: 20 },
-    data: {
-      label: "Failure",
-    },
-  },
-  {
-    id: "success",
-    type: "successNode",
-    position: { x: 400, y: -50 },
-    data: {
-      label: "Success",
-    },
-  },
 ];
 
 const initialEdges: ReactFlowEdge[] = [];
 
 const initialBfNodeTypes: BfNodeTypeAttributes[] = [
   {
-    typeId: "Do Thing",
+    typeId: "Success",
     inParams: [],
     outParams: [],
-    outPorts: ["Success", "Fail"],
+    outPorts: [],
+    isReadOnly: true,
+    category: BfNodeTypeCategory.Success,
   },
   {
-    typeId: "Check Thing",
+    typeId: "Failure",
     inParams: [],
     outParams: [],
-    outPorts: ["Success", "Fail"],
-  },
-  {
-    typeId: "Move to Charger",
-    inParams: [],
-    outParams: [],
-    outPorts: ["Success", "Fail"],
+    outPorts: [],
+    isReadOnly: true,
+    category: BfNodeTypeCategory.Failure,
   },
 ];
 
@@ -79,7 +58,7 @@ export default function App() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
-  
+
   const activityBarItems = [
     {
       itemName: "Menu",
@@ -120,7 +99,7 @@ export default function App() {
       const nodeId = nodeTypeId + "-" + uuid();
       return {
         id: nodeId,
-        type: "behaviorFlowNode", // revisit if needed
+        type: "behaviorFlowNode",
         position,
         draggable: true,
         data: {
@@ -128,7 +107,7 @@ export default function App() {
             nodeId: nodeId,
             nodeTypeId: nodeTypeId,
           },
-          getNodeTypeById,
+          nodeTypeAttributes: getNodeTypeById(nodeTypeId),
         },
       };
     },

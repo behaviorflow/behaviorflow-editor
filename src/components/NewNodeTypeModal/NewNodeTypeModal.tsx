@@ -2,23 +2,25 @@ import Modal from "../ui/Modal/Modal";
 import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
 import "./new-node-type-modal.css";
+import { BfNodeTypeCategory } from "../../types";
 
 interface NewNodeTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateNodeType: (nodeTypeName: string, outPorts: string[]) => void;
+  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => void;
 }
 
 interface CategoryConfig {
   id: string;
   label: string;
   outPorts: string[];
+  category: BfNodeTypeCategory;
 }
 
 const CategoryConfigs: CategoryConfig[] = [
-  { id: "Simple", label: "Simple", outPorts: [""] },
-  { id: "Boolean", label: "Boolean (True/False)", outPorts: ["True", "False"] },
-  { id: "Action", label: "Action (Success/Failure)", outPorts: ["Success", "Failure"] },
+  { id: "Simple", label: "Simple", outPorts: [""], category: BfNodeTypeCategory.Simple },
+  { id: "Boolean", label: "Boolean (True/False)", outPorts: ["True", "False"], category: BfNodeTypeCategory.Condition },
+  { id: "Action", label: "Action (Success/Failure)", outPorts: ["Success", "Failure"], category: BfNodeTypeCategory.Action },
 ]; // todo: These should be more global designators for coloring, etc.
 
 const DefaultCategory = CategoryConfigs[0];
@@ -33,8 +35,8 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
 
   const handleCreate = () => {
     if (nodeTypeName.trim()) {
-      const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DEFAULT_CATEGORY;
-      onCreateNodeType(nodeTypeName, category.outPorts);
+      const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DefaultCategory;
+      onCreateNodeType(nodeTypeName, category.outPorts, category.category);
       setNodeTypeName("");
       setNodeCategoryId(DefaultCategory.id);
       onClose();
