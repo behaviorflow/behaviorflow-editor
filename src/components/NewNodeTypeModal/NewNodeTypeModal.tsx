@@ -7,7 +7,7 @@ import { BfNodeTypeCategory } from "../../types";
 interface NewNodeTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => void;
+  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => [boolean, string];
 }
 
 interface CategoryConfig {
@@ -20,7 +20,12 @@ interface CategoryConfig {
 const CategoryConfigs: CategoryConfig[] = [
   { id: "Simple", label: "Simple", outPorts: [""], category: BfNodeTypeCategory.Simple },
   { id: "Boolean", label: "Boolean (True/False)", outPorts: ["True", "False"], category: BfNodeTypeCategory.Condition },
-  { id: "Action", label: "Action (Success/Failure)", outPorts: ["Success", "Failure"], category: BfNodeTypeCategory.Action },
+  {
+    id: "Action",
+    label: "Action (Success/Failure)",
+    outPorts: ["Success", "Failure"],
+    category: BfNodeTypeCategory.Action,
+  },
 ]; // todo: These should be more global designators for coloring, etc.
 
 const DefaultCategory = CategoryConfigs[0];
@@ -33,20 +38,29 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
     setNodeTypeName(event.target.value);
   };
 
+  const [error, setError] = useState("");
+
+  const resetAndExit = () => {
+    setNodeTypeName("");
+    setNodeCategoryId(DefaultCategory.id);
+    setError("");
+    onClose();
+  };
+
   const handleCreate = () => {
     if (nodeTypeName.trim()) {
       const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DefaultCategory;
-      onCreateNodeType(nodeTypeName, category.outPorts, category.category);
-      setNodeTypeName("");
-      setNodeCategoryId(DefaultCategory.id);
-      onClose();
+      const [success, errMsg] = onCreateNodeType(nodeTypeName, category.outPorts, category.category);
+      if (success) {
+        resetAndExit();
+      } else {
+        setError(errMsg || "Failed to create node type.");
+      }
     }
   };
 
   const handleCancel = () => {
-    setNodeTypeName("");
-    setNodeCategoryId(DefaultCategory.id);
-    onClose();
+    resetAndExit();
   };
 
   return (
@@ -69,6 +83,7 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
           value={nodeCategoryId}
           onChange={setNodeCategoryId}
         />
+        {error && <div className="modal-error-message">{error}</div>}
         <div className="modal-buttons">
           <button className="create-button" onClick={handleCreate} disabled={!nodeTypeName.trim()}>
             Create

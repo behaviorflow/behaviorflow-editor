@@ -22,6 +22,18 @@
 
 .activity-bar-button.active {
 	background-color: var(--background-secondary);
+	border-left: 4px solid var(--accent-color, var(--select-outline));
+}
+
+.activity-bar-button:focus {
+	outline: none;
+}
+
+.activity-bar-button:focus-visible {
+	outline: 2px solid var(--accent-color, var(--text-primary));
+	outline-offset: 0px;
+	z-index: 2;
+	position: relative;
 }
 
 .symbol-container {

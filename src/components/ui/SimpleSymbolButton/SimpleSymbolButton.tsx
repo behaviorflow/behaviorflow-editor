@@ -19,7 +19,8 @@ export default function SimpleSymbolButton({ onClick, buttonName, symbol, isEnab
       className={`simple-symbol-button ${isEnabled ? "enabled" : ""}`}
       onClick={onClickHandler}
       title={buttonName}
-      data-active={isEnabled}>
+      data-active={isEnabled}
+      disabled={!isEnabled}>
       <span className="symbol-container">{symbol}</span>
     </button>
   );

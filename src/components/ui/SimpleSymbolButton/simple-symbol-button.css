@@ -32,3 +32,12 @@
 	width: 18px;
 	height: 18px;
 }
+
+.simple-symbol-button:focus {
+	outline: none;
+}
+
+.simple-symbol-button:focus-visible {
+	outline: 2px solid var(--accent-color, var(--text-primary));
+	outline-offset: 0px;
+}

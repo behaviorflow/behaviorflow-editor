@@ -12,16 +12,17 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --editor-background: #cccccc;
-  --background: #8d8d8dff;
-  --background-secondary: rgb(174, 174, 174);
-  --background-hover: #7b7b7bff;
-  --background-select: #6f8a91ff;
-  --modal-backdrop: rgba(0, 0, 0, 0.75);
+  --editor-background: #f0efef;
+  --background: rgb(184, 184, 184);
+  --background-secondary: rgb(222, 222, 222);
+  --background-hover: #7d7d7d55;
+  --background-select: #6db0c177;
+  --modal-backdrop: rgba(0, 0, 0, 0.50);
   --select-outline: #2e87a3ff;
   --text-primary: #111827ff;
   --text-secondary: royalblue;
   --text-disabled: #565656ff;
+  --text-error: #b00020ff;
   --border: transparent;
   --xy-edge-stroke: #00254d;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
@@ -40,6 +41,7 @@
   --text-primary: #e4e4e4ff;
   --text-secondary: grey;
   --text-disabled: rgb(125, 125, 125);
+  --text-error: #ff6e6eff;
   --border: #ffffff;
   --xy-edge-stroke: #ffffff;
   --xy-connectionline-stroke: var(--xy-edge-stroke);

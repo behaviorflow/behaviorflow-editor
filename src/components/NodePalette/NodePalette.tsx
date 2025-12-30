@@ -50,13 +50,32 @@ export default function NodePalette({
   };
 
   const handleBackgroundClick = (event: React.MouseEvent) => {
-    // Only deselect if clicking directly on the node-palette div
     if (event.target === event.currentTarget) {
       setActiveItem(null);
     }
   };
 
-  const newNodeTypeCallback = (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => {
+
+  // Attempts to add a new node type. Returns [success, errorString].
+  const newNodeTypeCallback = (
+    nodeTypeName: string,
+    outPorts: string[],
+    category: BfNodeTypeCategory
+  ): [boolean, string] => {
+    if (nodeTypeName.trim() !== nodeTypeName) {
+      return [false, "Node type names cannot have leading or trailing whitespace."];
+    }
+    if (nodeTypeName.length < 3 || nodeTypeName.length > 64) {
+      return [false, "Node type names must be between 3 and 64 characters."];
+    }
+    if (!/^[\p{L}\p{N}_ ]+$/u.test(nodeTypeName)) {
+      return [false, "Node type names can only contain letters, numbers, underscores, and spaces."];
+    }
+    const existing = nodeTypes.find((nt) => nt.typeId.toLowerCase() === nodeTypeName.toLowerCase());
+    if (existing) {
+      return [false, "A node type named '" + existing.typeId + "' already exists."];
+    }
+    // Consder whether special nodes names like "Start" would be an issue if repeated
     const newNodeType: BfNodeTypeAttributes = {
       typeId: nodeTypeName,
       inParams: [],
@@ -66,6 +85,7 @@ export default function NodePalette({
       category: category,
     };
     addNodeType(newNodeType);
+    return [true, ""];
   };
 
   return (
@@ -114,7 +134,11 @@ export default function NodePalette({
       <div className="node-palette-list">
         {nodeTypes.map((nodeType) => (
           <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType)}>
-            <DraggableNodeCard nodeType={nodeType} isReadOnly={nodeType.isReadOnly} isSelected={activeItem?.typeId === nodeType.typeId} />
+            <DraggableNodeCard
+              nodeType={nodeType}
+              isReadOnly={nodeType.isReadOnly}
+              isSelected={activeItem?.typeId === nodeType.typeId}
+            />
           </div>
         ))}
       </div>
