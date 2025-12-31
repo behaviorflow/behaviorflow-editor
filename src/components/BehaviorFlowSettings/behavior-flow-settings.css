@@ -1,5 +1,9 @@
 .behavior-flow-settings {
   width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .behavior-flow-settings-list {
