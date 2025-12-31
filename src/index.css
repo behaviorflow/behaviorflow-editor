@@ -21,7 +21,7 @@
   --select-outline: #2e87a3ff;
   --text-primary: #111827ff;
   --text-secondary: royalblue;
-  --text-disabled: #565656ff;
+  --text-disabled: rgb(143, 143, 143);
   --text-error: #b00020ff;
   --border: transparent;
   --xy-edge-stroke: #00254d;
