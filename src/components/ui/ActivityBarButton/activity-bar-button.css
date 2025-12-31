@@ -21,7 +21,7 @@
 }
 
 .activity-bar-button.active {
-	background-color: var(--background-secondary);
+	background-color: var(--background);
 	border-left: 4px solid var(--accent-color, var(--select-outline));
 }
 

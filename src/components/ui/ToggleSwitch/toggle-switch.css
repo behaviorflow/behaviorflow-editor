@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--background);
+  background-color: var(--background-secondary);
   transition: 0.4s;
   border-radius: var(--switch-height);
   border: var(--switch-border-width) solid var(--text-primary);

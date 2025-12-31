@@ -46,7 +46,7 @@
 
 .draggable-node-card-callout {
   position: absolute;
-  background-color: var(--background);
+  background-color: var(--background-secondary);
   border: 1px solid var(--text-primary);
   border-radius: 5px;
   padding: 10px;

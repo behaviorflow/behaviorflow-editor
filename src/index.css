@@ -13,8 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
 
   --editor-background: #f0efef;
-  --background: rgb(184, 184, 184);
-  --background-secondary: rgb(222, 222, 222);
+  --background: rgb(222, 222, 222);
+  --background-secondary: rgb(184, 184, 184);
   --background-hover: #7d7d7d55;
   --background-select: #6db0c177;
   --modal-backdrop: rgba(0, 0, 0, 0.50);
@@ -32,8 +32,8 @@
 
 [data-theme='dark'] {
   --editor-background: #2a2a2a;
-  --background: #202225ff;
-  --background-secondary: rgb(54, 57, 62);
+  --background: rgb(54, 57, 62);
+  --background-secondary: #202225ff;
   --background-hover: #4c4f51ff;
   --background-select: rgb(16, 115, 182);
   --modal-backdrop: rgba(0, 0, 0, 0.33);
@@ -79,7 +79,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--background);
+  background-color: var(--background-secondary);
   cursor: pointer;
   transition: border-color 0.25s;
 }

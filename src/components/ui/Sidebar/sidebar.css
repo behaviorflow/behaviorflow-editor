@@ -52,7 +52,7 @@
 .resizer {
 	display: flex;
 	width: 3px;
-	border: 1px solid var(--background-secondary);
+	border: 1px solid var(--background);
 	height: 100%;
 	background-color: var(--border);
 	cursor: ew-resize;

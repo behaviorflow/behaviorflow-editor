@@ -8,12 +8,13 @@
   --activity-bar-width: 52px;
   display: flex;
   flex-direction: column;
-  background-color: var(--background);
+  background-color: var(--background-secondary);
   width: var(--activity-bar-width);
   height: 100%;
+  /* border-right: 1px solid var(--background-secondary); */
 }
 
 .activity-bar-sidebar {
   flex: 1;
-	background-color: var(--background-secondary);
+	background-color: var(--background);
 }
