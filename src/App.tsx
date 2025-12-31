@@ -26,6 +26,7 @@ const initialNodes: ReactFlowNode[] = [
     type: "startNode",
     position: { x: 0, y: 0 },
     draggable: false,
+    deletable: false,
     data: {},
   },
 ];
@@ -84,25 +85,22 @@ function AppContent() {
     },
   ];
 
-  const generateReactNode = useCallback(
-    (nodeTypeId: string, position: { x: number; y: number }): ReactFlowNode => {
-      const nodeId = nodeTypeId + "-" + uuid();
-      return {
-        id: nodeId,
-        type: "behaviorFlowNode",
-        position,
-        draggable: true,
-        data: {
-          nodeAttributes: {
-            nodeId: nodeId,
-            nodeTypeId: nodeTypeId,
-          },
-          // No longer storing nodeTypeAttributes - BehaviorFlowNode will look it up from context
+  const generateReactNode = useCallback((nodeTypeId: string, position: { x: number; y: number }): ReactFlowNode => {
+    const nodeId = nodeTypeId + "-" + uuid();
+    return {
+      id: nodeId,
+      type: "behaviorFlowNode",
+      position,
+      draggable: true,
+      data: {
+        nodeAttributes: {
+          nodeId: nodeId,
+          nodeTypeId: nodeTypeId,
         },
-      };
-    },
-    []
-  );
+        // No longer storing nodeTypeAttributes - BehaviorFlowNode will look it up from context
+      },
+    };
+  }, []);
 
   return (
     <div className="app" data-theme={theme}>

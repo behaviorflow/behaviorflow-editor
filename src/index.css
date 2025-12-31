@@ -24,6 +24,7 @@
   --text-disabled: rgb(143, 143, 143);
   --text-error: #b00020ff;
   --border: transparent;
+  --border-selected: #03c226;
   --xy-edge-stroke: #00254d;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #e3801e;
@@ -43,6 +44,7 @@
   --text-disabled: rgb(125, 125, 125);
   --text-error: #ff6e6eff;
   --border: #ffffff;
+  --border-selected: #efef41;
   --xy-edge-stroke: #ffffff;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #5fcbf6;

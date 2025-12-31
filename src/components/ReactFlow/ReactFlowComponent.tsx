@@ -87,6 +87,8 @@ function ReactFlowContent({ initialNodes, initialEdges, showMiniMap, generateRea
     }
   };
 
+  const deleteKeyCode = ['Backspace', 'Delete'];
+
   return (
     <div className="react-flow-component">
       <ReactFlow
@@ -98,6 +100,7 @@ function ReactFlowContent({ initialNodes, initialEdges, showMiniMap, generateRea
         nodeTypes={reactFlowNodeTypes}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
+        deleteKeyCode={deleteKeyCode}
         fitView>
         <Controls />
         {showMiniMap && <MiniMap pannable zoomable nodeColor={minimapNodeColor} />}{" "}

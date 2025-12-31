@@ -1,6 +1,7 @@
 .behavior-flow-node {
   --node-border-radius: 8px;
   --node-border: 1px solid var(--border);
+  --node-border-selected: 2px solid var(--border-selected);
 
   display: flex;
   flex-direction: column;
@@ -12,7 +13,7 @@
 }
 
 
-.start-node, .success-node, .failure-node {
+.start-node {
   /* background-image: linear-gradient( 135deg, #00a746 10%, #08fb00e4 100%); */
   padding-top: 9px;
   padding-bottom: 9px;
@@ -28,14 +29,6 @@
 
 .start-node {
   background-color: #4F97FC;
-}
-
-.success-node {
-  background-color:  #00B318;
-}
-
-.failure-node {
-  background-color:  #E17575;
 }
 
 .node-header {
@@ -85,6 +78,7 @@
   border-bottom-left-radius: var(--node-border-radius);
   border-bottom-right-radius: var(--node-border-radius);
   border: var(--node-border);
+  border-top: none;
 }
 
 .left-column {
@@ -160,4 +154,18 @@
 .behavior-flow-node.error {
   color: #FF0000;
   background-color: rgb(0, 0, 0);
+}
+
+.react-flow__node.selected .behavior-flow-node .node-header,
+.react-flow__node.selected .behavior-flow-node .node-header.node-header--no-content {
+  border: var(--node-border-selected);
+}
+
+.react-flow__node.selected .behavior-flow-node .node-content {
+  border: var(--node-border-selected);
+  border-top: none;
+}
+
+.react-flow__node.selected .start-node {
+  border: var(--node-border-selected);
 }
