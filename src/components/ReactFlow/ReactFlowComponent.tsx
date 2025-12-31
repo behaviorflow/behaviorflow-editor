@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
-  ReactFlowProvider,
   MiniMap,
   Controls,
   Background,
@@ -110,11 +109,7 @@ function ReactFlowContent({ initialNodes, initialEdges, showMiniMap, generateRea
 }
 
 export default function ReactFlowComponent(props: ReactFlowComponentProps) {
-  return (
-    <ReactFlowProvider>
-      <ReactFlowContent {...props} />
-    </ReactFlowProvider>
-  );
+  return <ReactFlowContent {...props} />;
 }
 
 function minimapNodeColor(node: { type?: string }) {

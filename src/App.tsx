@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Edge as ReactFlowEdge, Node as ReactFlowNode } from "@xyflow/react";
+import { Edge as ReactFlowEdge, Node as ReactFlowNode, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import "./components/nodes/behavior-flow-node.css";
@@ -9,8 +9,8 @@ import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
-import { NodeParam, BfNodeAttributes, BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
-import { useNodeTypes } from "./hooks";
+import { BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
+import { NodeTypesProvider } from "./contexts";
 
 import { v4 as uuid } from "uuid";
 
@@ -51,10 +51,7 @@ const initialBfNodeTypes: BfNodeTypeAttributes[] = [
   },
 ];
 
-export default function App() {
-  const { addNodeType, deleteNodeType, getOrderedNodeTypes, getNodeTypeById } =
-    useNodeTypes(initialBfNodeTypes);
-
+function AppContent() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
@@ -70,13 +67,7 @@ export default function App() {
       itemName: "Node Palette",
       nameDisplay: "Nodes",
       symbol: <Workflow />,
-      content: (
-        <NodePalette
-          getOrderedNodeTypes={getOrderedNodeTypes}
-          addNodeType={addNodeType}
-          deleteNodeType={deleteNodeType}
-        />
-      ),
+      content: <NodePalette />,
     },
     {
       itemName: "Settings",
@@ -106,11 +97,11 @@ export default function App() {
             nodeId: nodeId,
             nodeTypeId: nodeTypeId,
           },
-          nodeTypeAttributes: getNodeTypeById(nodeTypeId),
+          // No longer storing nodeTypeAttributes - BehaviorFlowNode will look it up from context
         },
       };
     },
-    [getNodeTypeById]
+    []
   );
 
   return (
@@ -127,5 +118,15 @@ export default function App() {
         />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <NodeTypesProvider initialNodeTypes={initialBfNodeTypes}>
+      <ReactFlowProvider>
+        <AppContent />
+      </ReactFlowProvider>
+    </NodeTypesProvider>
   );
 }

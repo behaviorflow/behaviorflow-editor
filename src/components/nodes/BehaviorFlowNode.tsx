@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import { Handle, Position, NodeProps, Node } from "@xyflow/react";
-import { BfNodeAttributes, BfNodeTypeAttributes, NodeParam } from "../../types";
+import { BfNodeAttributes, NodeParam } from "../../types";
+import { useNodeTypesContext } from "../../contexts";
 
 export type BehaviorFlowNodeProps = {
   nodeAttributes: BfNodeAttributes;
-  nodeTypeAttributes: BfNodeTypeAttributes;
 };
 
 export type BehaviorFlowNode = Node<BehaviorFlowNodeProps>;
@@ -14,15 +13,19 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
   if (!nodeId || !nodeTypeId) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
   }
-  const { typeId, inParams, outParams, outPorts } = props.data.nodeTypeAttributes || {};
-  if (!typeId) {
+
+  // Dynamically look up node type from context - will re-render when nodeTypes change
+  const { getNodeTypeById } = useNodeTypesContext();
+  const nodeTypeAttributes = getNodeTypeById(nodeTypeId);
+
+  if (!nodeTypeAttributes) {
     return <div className="behavior-flow-node error">Unknown node type: {nodeTypeId}</div>;
   }
-  const has_non_label_out_port_only = outPorts && outPorts.length == 1 && outPorts[0].length == 0;
+
+  const { typeId, inParams = [], outParams = [], outPorts = [] } = nodeTypeAttributes;
+  const has_non_label_out_port_only = outPorts.length === 1 && outPorts[0].length === 0;
   const is_content =
-    (inParams && inParams.length > 0) ||
-    (outParams && outParams.length > 0) ||
-    (outPorts && outPorts.length > 0 && !has_non_label_out_port_only);
+    inParams.length > 0 || outParams.length > 0 || (outPorts.length > 0 && !has_non_label_out_port_only);
 
   const nodeHeaderClass = `node-header${!is_content ? " node-header--no-content" : ""}`;
 

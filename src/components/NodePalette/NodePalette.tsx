@@ -2,24 +2,14 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
+import { useNodeTypesContext } from "../../contexts";
 import { Plus, Trash2 } from "lucide-react";
 import "./node-palette.css";
 
 import NewNodeTypeModal from "../NewNodeTypeModal/NewNodeTypeModal";
 
-export interface NodePaletteProps {
-  getOrderedNodeTypes: (
-    orderingFn?: (a: BfNodeTypeAttributes, b: BfNodeTypeAttributes) => number
-  ) => BfNodeTypeAttributes[];
-  addNodeType: (nodeType: BfNodeTypeAttributes) => void;
-  deleteNodeType: (nodeTypeId: string) => void;
-}
-
-export default function NodePalette({
-  getOrderedNodeTypes,
-  addNodeType,
-  deleteNodeType,
-}: NodePaletteProps) {
+export default function NodePalette() {
+  const { getOrderedNodeTypes, addNodeType, deleteNodeType } = useNodeTypesContext();
   const [activeItem, setActiveItem] = useState<BfNodeTypeAttributes | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewNodeTypeModalOpen, setIsNewNodeTypeModalOpen] = useState(false);
