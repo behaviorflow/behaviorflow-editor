@@ -52,7 +52,7 @@ const initialBfNodeTypes: BfNodeTypeAttributes[] = [
 ];
 
 export default function App() {
-  const { addNodeType, deleteNodeType, editNodeType, getOrderedNodeTypes, getNodeTypeById, hasNodeType } =
+  const { addNodeType, deleteNodeType, getOrderedNodeTypes, getNodeTypeById } =
     useNodeTypes(initialBfNodeTypes);
 
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -75,7 +75,6 @@ export default function App() {
           getOrderedNodeTypes={getOrderedNodeTypes}
           addNodeType={addNodeType}
           deleteNodeType={deleteNodeType}
-          editNodeType={editNodeType}
         />
       ),
     },

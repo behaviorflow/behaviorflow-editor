@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
-import { CirclePlus, Wrench, FolderPlus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import "./node-palette.css";
 
 import NewNodeTypeModal from "../NewNodeTypeModal/NewNodeTypeModal";
@@ -13,14 +13,12 @@ export interface NodePaletteProps {
   ) => BfNodeTypeAttributes[];
   addNodeType: (nodeType: BfNodeTypeAttributes) => void;
   deleteNodeType: (nodeTypeId: string) => void;
-  editNodeType: (nodeTypeId: string, editedNodeType: BfNodeTypeAttributes) => void;
 }
 
 export default function NodePalette({
   getOrderedNodeTypes,
   addNodeType,
   deleteNodeType,
-  editNodeType,
 }: NodePaletteProps) {
   const [activeItem, setActiveItem] = useState<BfNodeTypeAttributes | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,23 +91,7 @@ export default function NodePalette({
         <SimpleSymbolButton
           onClick={() => setIsNewNodeTypeModalOpen(true)}
           buttonName="New Node Type"
-          symbol={<CirclePlus />}
-        />
-        <SimpleSymbolButton
-          onClick={() => console.log("Button clicked")}
-          buttonName="New Node Group"
-          symbol={<FolderPlus />}
-        />
-        <SimpleSymbolButton
-          onClick={() => {
-            if (isEditableNodeSelected) {
-              // TODO: Implement edit modal
-              console.log("Edit node type:", activeItem.typeId);
-            }
-          }}
-          buttonName="Edit Node Type"
-          symbol={<Wrench />}
-          isEnabled={isEditableNodeSelected}
+          symbol={<Plus />}
         />
         <SimpleSymbolButton
           onClick={() => {
