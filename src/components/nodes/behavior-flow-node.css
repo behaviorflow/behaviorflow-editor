@@ -156,3 +156,8 @@
   right: calc(var(--content-padding-lr) * -1.0);
   bottom: calc(var(--out-port-label-size) * -0.76);
 }
+
+.behavior-flow-node.error {
+  color: #FF0000;
+  background-color: rgb(0, 0, 0);
+}
