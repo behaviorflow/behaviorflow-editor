@@ -38,3 +38,10 @@
   text-align: left;
   position: relative;
 }
+
+.node-palette-no-results-message {
+  color: #888;
+  text-align: center;
+  padding: 20px 10px;
+  font-style: italic;
+}

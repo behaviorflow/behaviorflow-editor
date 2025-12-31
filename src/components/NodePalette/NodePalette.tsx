@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
@@ -27,6 +27,7 @@ export default function NodePalette({
   const [isNewNodeTypeModalOpen, setIsNewNodeTypeModalOpen] = useState(false);
   const nodePaletteRef = useRef<HTMLDivElement>(null);
   const nodeTypes = getOrderedNodeTypes();
+  const filteredNodeTypes = useMemo(() => filterNodeTypes(nodeTypes, { searchTerm }), [nodeTypes, searchTerm]);
   const isEditableNodeSelected = activeItem != null && !activeItem.isReadOnly;
 
   useEffect(() => {
@@ -35,7 +36,6 @@ export default function NodePalette({
         setActiveItem(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -54,7 +54,6 @@ export default function NodePalette({
       setActiveItem(null);
     }
   };
-
 
   // Attempts to add a new node type. Returns [success, errorString].
   const newNodeTypeCallback = (
@@ -132,15 +131,19 @@ export default function NodePalette({
         onChange={handleSearchInputChange}
       />
       <div className="node-palette-list">
-        {nodeTypes.map((nodeType) => (
-          <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType)}>
-            <DraggableNodeCard
-              nodeType={nodeType}
-              isReadOnly={nodeType.isReadOnly}
-              isSelected={activeItem?.typeId === nodeType.typeId}
-            />
-          </div>
-        ))}
+        {filteredNodeTypes.length === 0 && searchTerm.trim() !== "" ? (
+          <div className="node-palette-no-results">No matching nodes found</div>
+        ) : (
+          filteredNodeTypes.map((nodeType) => (
+            <div key={nodeType.typeId} className="node-palette-item" onClick={() => handleItemClick(nodeType)}>
+              <DraggableNodeCard
+                nodeType={nodeType}
+                isReadOnly={nodeType.isReadOnly}
+                isSelected={activeItem?.typeId === nodeType.typeId}
+              />
+            </div>
+          ))
+        )}
       </div>
       <NewNodeTypeModal
         isOpen={isNewNodeTypeModalOpen}
@@ -149,4 +152,18 @@ export default function NodePalette({
       />
     </div>
   );
+}
+
+interface NodeTypeFilterCriteria {
+  searchTerm?: string;
+}
+
+function filterNodeTypes(nodeTypes: BfNodeTypeAttributes[], criteria: NodeTypeFilterCriteria): BfNodeTypeAttributes[] {
+  return nodeTypes.filter((nodeType) => {
+    if (!criteria.searchTerm?.trim()) {
+      return true;
+    }
+    const term = criteria.searchTerm.toLowerCase();
+    return nodeType.typeId.toLowerCase().includes(term);
+  });
 }
