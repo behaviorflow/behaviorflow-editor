@@ -36,9 +36,7 @@ function isStartNode(node: ReactFlowNode): boolean {
 }
 
 function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[]): string | null {
-  const startNode = nodes.find(
-    (node) => isStartNode(node)
-  );
+  const startNode = nodes.find((node) => isStartNode(node));
   if (!startNode) {
     return null;
   }
@@ -46,7 +44,10 @@ function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[]): string
   return startEdge ? startEdge.target : null;
 }
 
-function buildTransitions(nodeId: string, edges: ReactFlowEdge[]): Record<string, string> {
+function buildTransitions(
+  nodeId: string,
+  edges: ReactFlowEdge[],
+): Record<string, string> {
   const transitions: Record<string, string> = {};
   // Find all edges originating from this node
   const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
@@ -64,7 +65,10 @@ function buildTransitions(nodeId: string, edges: ReactFlowEdge[]): Record<string
   return transitions;
 }
 
-function exportNode(node: ReactFlowNode, edges: ReactFlowEdge[]): ExportedNode | null {
+function exportNode(
+  node: ReactFlowNode,
+  edges: ReactFlowEdge[],
+): ExportedNode | null {
   if (isStartNode(node)) {
     return null;
   }
@@ -89,16 +93,56 @@ function exportNode(node: ReactFlowNode, edges: ReactFlowEdge[]): ExportedNode |
   };
 }
 
+function bfsOrderNodes(nodes: ReactFlowNode[], edges: ReactFlowEdge[], startNodeId: string | null): ReactFlowNode[] {
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const visited = new Set<string>();
+  const orderedNodes: ReactFlowNode[] = [];
+  const queue: string[] = [];
+
+  if (startNodeId && nodeMap.has(startNodeId)) {
+    queue.push(startNodeId);
+  }
+
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
+    if (visited.has(currentId)) continue;
+    visited.add(currentId);
+    const node = nodeMap.get(currentId);
+    if (node && !isStartNode(node)) {
+      orderedNodes.push(node);
+    }
+    // Enqueue all targets of outgoing edges
+    const outgoing = edges.filter((e) => e.source === currentId);
+    for (const edge of outgoing) {
+      if (!visited.has(edge.target) && nodeMap.has(edge.target)) {
+        queue.push(edge.target);
+      }
+    }
+  }
+
+  // Log and exclude any nodes not reached by BFS (disconnected)
+  for (const node of nodes) {
+    if (!isStartNode(node) && !visited.has(node.id)) {
+      console.error(`Node ${node.id} is disconnected and will not be included in the exported graph.`);
+    }
+  }
+
+  return orderedNodes;
+}
+
 function exportGraph(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>
 ): ExportedGraph {
   const exportedNodeTypes: ExportedNodeType[] = Array.from(nodeTypes.values()).map(exportNodeType);
-  const exportedNodes: ExportedNode[] = nodes
+  const startNodeId = findStartNodeId(nodes, edges);
+  const orderedNodes = bfsOrderNodes(nodes, edges, startNodeId);
+
+  const exportedNodes: ExportedNode[] = orderedNodes
     .map((node) => exportNode(node, edges))
     .filter((node): node is ExportedNode => node !== null);
-  const startNodeId = findStartNodeId(nodes, edges);
+
   return {
     node_types: exportedNodeTypes,
     nodes: exportedNodes,

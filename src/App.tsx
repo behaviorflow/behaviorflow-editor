@@ -65,6 +65,10 @@ function AppContent() {
     edges: initialEdges,
   });
 
+  const handleGraphUpdate = React.useCallback((nodes: ReactFlowNode[], edges: ReactFlowEdge[]) => {
+    setGraphData({ nodes, edges });
+  }, []);
+
   const menuItems = [
     {
       label: "Export as JSON",
@@ -134,7 +138,7 @@ function AppContent() {
           initialEdges={initialEdges}
           showMiniMap={showMiniMap}
           generateReactNode={generateReactNode}
-          onGraphUpdate={(nodes, edges) => setGraphData({ nodes, edges })}
+          onGraphUpdate={handleGraphUpdate}
         />
       </div>
     </div>
