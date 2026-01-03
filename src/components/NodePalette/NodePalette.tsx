@@ -62,7 +62,6 @@ export default function NodePalette() {
     if (existing) {
       return [false, "A node type named '" + existing.typeId + "' already exists."];
     }
-    // Consder whether special nodes names like "Start" would be an issue if repeated
     const newNodeType: BfNodeTypeAttributes = {
       typeId: nodeTypeName,
       inParams: [],

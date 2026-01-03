@@ -10,7 +10,9 @@ import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
-import { NodeTypesProvider } from "./contexts";
+import { NodeTypesProvider, useNodeTypesContext } from "./contexts";
+import { exportGraphAsJson } from "./utils";
+import { NodeTypeIds, ReactFlowNodeTypes } from "./constants";
 
 import { v4 as uuid } from "uuid";
 
@@ -22,8 +24,8 @@ import { Menu, Workflow, Settings } from "lucide-react";
 
 const initialNodes: ReactFlowNode[] = [
   {
-    id: "start",
-    type: "startNode",
+    id: NodeTypeIds.START_NODE_TYPE_ID,
+    type: ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE,
     position: { x: 0, y: 0 },
     draggable: false,
     deletable: false,
@@ -56,13 +58,29 @@ function AppContent() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
+  const { nodeTypes } = useNodeTypesContext();
+  const getGraphData = React.useRef<null | (() => { nodes: ReactFlowNode[]; edges: ReactFlowEdge[] })>(null);
+
+  const menuItems = [
+    {
+      label: "Export as JSON",
+      onClick: () => {
+        if (!getGraphData.current) {
+          console.warn("Graph data not registered");
+          return;
+        }
+        const { nodes, edges } = getGraphData.current();
+        exportGraphAsJson(nodes, edges, nodeTypes);
+      },
+    },
+  ];
 
   const activityBarItems = [
     {
       itemName: "Menu",
       nameDisplay: "Menu",
       symbol: <Menu />,
-      content: <BehaviorFlowMenu />,
+      content: <BehaviorFlowMenu menuItems={menuItems} />,
     },
     {
       itemName: "Node Palette",
@@ -89,7 +107,7 @@ function AppContent() {
     const nodeId = nodeTypeId + "-" + uuid();
     return {
       id: nodeId,
-      type: "behaviorFlowNode",
+      type: ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE,
       position,
       draggable: true,
       data: {
@@ -113,6 +131,7 @@ function AppContent() {
           initialEdges={initialEdges}
           showMiniMap={showMiniMap}
           generateReactNode={generateReactNode}
+          registerGraphData={(fn: any) => (getGraphData.current = fn)}
         />
       </div>
     </div>

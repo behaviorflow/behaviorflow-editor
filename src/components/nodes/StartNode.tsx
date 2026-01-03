@@ -9,6 +9,7 @@ function StartNode() {
       <Handle
         type="source"
         position={Position.Right}
+        id="start-node-out"
       />
     </div>
   );

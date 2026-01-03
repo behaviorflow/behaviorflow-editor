@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -18,6 +18,7 @@ import "@xyflow/react/dist/style.css";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import StartNode from "../nodes/StartNode";
 import { BfNodeTypeAttributes } from "../../types";
+import { ReactFlowNodeTypes } from "../../constants";
 import "./react-flow.css";
 
 const reactFlowNodeTypes = {
@@ -30,23 +31,32 @@ export interface ReactFlowComponentProps {
   initialEdges: Edge[];
   showMiniMap: boolean;
   generateReactNode: (nodeData: any, position: { x: number; y: number }) => Node;
+  registerGraphData: (fn: () => { nodes: Node[]; edges: Edge[] }) => void;
 }
 
-function ReactFlowContent({ initialNodes, initialEdges, showMiniMap, generateReactNode }: ReactFlowComponentProps) {
+function ReactFlowContent({
+  initialNodes,
+  initialEdges,
+  showMiniMap,
+  generateReactNode,
+  registerGraphData,
+}: ReactFlowComponentProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Register a getter that returns the latest nodes/edges
+  useEffect(() => {
+    registerGraphData(() => ({ nodes, edges }));
+  }, [nodes, edges, registerGraphData]);
 
   const onConnect = useCallback(
     (connection: Edge | Connection) =>
       setEdges((edges) => {
-        const newEdge = addEdge(connection, edges);
-        // Add style to each new edge
-        if (Array.isArray(newEdge)) {
-          return newEdge.map((edge) => ({
-            ...edge,
-          }));
-        }
-        return newEdge;
+        // Remove any previous edge from the same source handle (to enforce single connection per out port)
+        const edgesWithPrevRemoved = edges.filter(
+          (edge) => !(edge.source === connection.source && edge.sourceHandle === connection.sourceHandle)
+        );
+        return addEdge(connection, edgesWithPrevRemoved);
       }),
     [setEdges]
   );
@@ -87,7 +97,7 @@ function ReactFlowContent({ initialNodes, initialEdges, showMiniMap, generateRea
     }
   };
 
-  const deleteKeyCode = ['Backspace', 'Delete'];
+  const deleteKeyCode = ["Backspace", "Delete"];
 
   return (
     <div className="react-flow-component">
@@ -118,9 +128,9 @@ export default function ReactFlowComponent(props: ReactFlowComponentProps) {
 function minimapNodeColor(node: { type?: string }) {
   // Maybe eventually just nodeColor
   switch (node.type) {
-    case "behaviorFlowNode":
+    case ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE:
       return "#7c36e5ff";
-    case "startNode":
+    case ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE:
       return "#6ed5deff";
     case "successNode":
       return "#6ede87";
