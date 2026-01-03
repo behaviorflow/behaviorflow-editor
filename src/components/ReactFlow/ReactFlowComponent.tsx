@@ -31,7 +31,7 @@ export interface ReactFlowComponentProps {
   initialEdges: Edge[];
   showMiniMap: boolean;
   generateReactNode: (nodeData: any, position: { x: number; y: number }) => Node;
-  registerGraphData: (fn: () => { nodes: Node[]; edges: Edge[] }) => void;
+  onGraphUpdate: (nodes: Node[], edges: Edge[]) => void;
 }
 
 function ReactFlowContent({
@@ -39,15 +39,15 @@ function ReactFlowContent({
   initialEdges,
   showMiniMap,
   generateReactNode,
-  registerGraphData,
+  onGraphUpdate,
 }: ReactFlowComponentProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Register a getter that returns the latest nodes/edges
+  // Call onGraphUpdate whenever nodes or edges change
   useEffect(() => {
-    registerGraphData(() => ({ nodes, edges }));
-  }, [nodes, edges, registerGraphData]);
+    onGraphUpdate(nodes, edges);
+  }, [nodes, edges, onGraphUpdate]);
 
   const onConnect = useCallback(
     (connection: Edge | Connection) =>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { Edge as ReactFlowEdge, Node as ReactFlowNode, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -14,13 +14,12 @@ import { NodeTypesProvider, useNodeTypesContext } from "./contexts";
 import { exportGraphAsJson } from "./utils";
 import { NodeTypeIds, ReactFlowNodeTypes } from "./constants";
 
-import { v4 as uuid } from "uuid";
-
 import useLocalStorage from "use-local-storage";
 
 import "./App.css";
 
 import { Menu, Workflow, Settings } from "lucide-react";
+import NodeIdManager from "./utils/NodeIdManager";
 
 const initialNodes: ReactFlowNode[] = [
   {
@@ -54,23 +53,27 @@ const initialBfNodeTypes: BfNodeTypeAttributes[] = [
   },
 ];
 
+const nodeIdManager = new NodeIdManager();
+
 function AppContent() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
   const { nodeTypes } = useNodeTypesContext();
-  const getGraphData = React.useRef<null | (() => { nodes: ReactFlowNode[]; edges: ReactFlowEdge[] })>(null);
+  const [graphData, setGraphData] = React.useState<{ nodes: ReactFlowNode[]; edges: ReactFlowEdge[] }>({
+    nodes: initialNodes,
+    edges: initialEdges,
+  });
 
   const menuItems = [
     {
       label: "Export as JSON",
       onClick: () => {
-        if (!getGraphData.current) {
-          console.warn("Graph data not registered");
+        if (!graphData.nodes || !graphData.edges) {
+          console.warn("Graph data not available");
           return;
         }
-        const { nodes, edges } = getGraphData.current();
-        exportGraphAsJson(nodes, edges, nodeTypes);
+        exportGraphAsJson(graphData.nodes, graphData.edges, nodeTypes);
       },
     },
   ];
@@ -104,7 +107,7 @@ function AppContent() {
   ];
 
   const generateReactNode = useCallback((nodeTypeId: string, position: { x: number; y: number }): ReactFlowNode => {
-    const nodeId = nodeTypeId + "-" + uuid();
+    const nodeId = nodeIdManager.generateNodeId(nodeTypeId);
     return {
       id: nodeId,
       type: ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE,
@@ -131,7 +134,7 @@ function AppContent() {
           initialEdges={initialEdges}
           showMiniMap={showMiniMap}
           generateReactNode={generateReactNode}
-          registerGraphData={(fn: any) => (getGraphData.current = fn)}
+          onGraphUpdate={(nodes, edges) => setGraphData({ nodes, edges })}
         />
       </div>
     </div>
