@@ -44,10 +44,7 @@ function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[]): string
   return startEdge ? startEdge.target : null;
 }
 
-function buildTransitions(
-  nodeId: string,
-  edges: ReactFlowEdge[],
-): Record<string, string> {
+function buildTransitions(nodeId: string, edges: ReactFlowEdge[], expectedHandleIds: string[]): Record<string, string> {
   const transitions: Record<string, string> = {};
   // Find all edges originating from this node
   const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
@@ -62,12 +59,21 @@ function buildTransitions(
     }
     transitions[edge.sourceHandle] = edge.target;
   }
+  const missing = expectedHandleIds.filter((port) => !Object.keys(transitions).includes(port));
+  const extra = Object.keys(transitions).filter((key) => !expectedHandleIds.includes(key));
+  if (missing.length > 0) {
+    console.warn(`Not all handles of node ${nodeId} have corresponding edges.`);
+  }
+  if (extra.length > 0) {
+    console.warn(`Node ${nodeId} has edges from unknown handles: ${extra.join(", ")}`);
+  }
   return transitions;
 }
 
 function exportNode(
   node: ReactFlowNode,
   edges: ReactFlowEdge[],
+  nodeTypes: Map<string, BfNodeTypeAttributes>
 ): ExportedNode | null {
   if (isStartNode(node)) {
     return null;
@@ -78,13 +84,15 @@ function exportNode(
     console.warn(`Node ${node.id} has no nodeAttributes`);
     return null;
   }
-  const transitions = buildTransitions(node.id, edges);
-  if (transitions === null) {
+  const nodeTypeAttributes = nodeTypes.get(nodeAttributes.nodeTypeId);
+  if (!nodeTypeAttributes) {
     console.warn(
-      `Skipping export of node ${node.id} (${nodeAttributes.nodeId}) because transitions are missing or invalid.`
+      `Skipping export of node ${node.id} (${nodeAttributes.nodeId}) because node type ${nodeAttributes.nodeTypeId} is unknown.`
     );
     return null;
   }
+
+  const transitions = buildTransitions(node.id, edges, nodeTypeAttributes.outPorts);
 
   return {
     node_id: nodeAttributes.nodeId,
@@ -140,7 +148,7 @@ function exportGraph(
   const orderedNodes = bfsOrderNodes(nodes, edges, startNodeId);
 
   const exportedNodes: ExportedNode[] = orderedNodes
-    .map((node) => exportNode(node, edges))
+    .map((node) => exportNode(node, edges, nodeTypes))
     .filter((node): node is ExportedNode => node !== null);
 
   return {
