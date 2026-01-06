@@ -7,7 +7,7 @@ import "./components/nodes/behavior-flow-node.css";
 import ActivityBar from "./components/ui/ActivityBar/ActivityBar";
 import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
-import BehaviorFlowSettings from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
+import BehaviorFlowSettings, { ToggleSwitchConfig } from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
 import { NodeTypesProvider, useNodeTypesContext } from "./contexts";
@@ -82,6 +82,19 @@ function AppContent() {
     },
   ];
 
+  const settingsToggles: ToggleSwitchConfig[] = [
+    {
+      label: "Dark Mode",
+      isOn: theme === "dark",
+      onChange: (checked) => setTheme(checked ? "dark" : "light"),
+    },
+    {
+      label: "Hide Mini Map",
+      isOn: !showMiniMap,
+      onChange: (checked) => setShowMiniMap(!checked),
+    },
+  ];
+
   const activityBarItems = [
     {
       itemName: "Menu",
@@ -99,14 +112,7 @@ function AppContent() {
       itemName: "Settings",
       nameDisplay: "Settings",
       symbol: <Settings />,
-      content: (
-        <BehaviorFlowSettings
-          setTheme={setTheme}
-          themeStatus={theme}
-          setShowMiniMap={setShowMiniMap}
-          showMiniMapStatus={showMiniMap}
-        />
-      ),
+      content: <BehaviorFlowSettings toggles={settingsToggles} />,
     },
   ];
 
@@ -122,7 +128,6 @@ function AppContent() {
           nodeId: nodeId,
           nodeTypeId: nodeTypeId,
         },
-        // No longer storing nodeTypeAttributes - BehaviorFlowNode will look it up from context
       },
     };
   }, []);
