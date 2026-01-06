@@ -1,4 +1,5 @@
-import { Handle, Position, NodeProps, Node } from "@xyflow/react";
+import { useRef, useLayoutEffect } from "react";
+import { Handle, Position, NodeProps, Node, useReactFlow } from "@xyflow/react";
 import { BfNodeAttributes, NodeParam } from "../../types";
 import { useNodeTypesContext } from "../../contexts";
 import { SIMPLE_NODE_HANDLE_ID } from "../../constants.ts";
@@ -10,20 +11,37 @@ export type BehaviorFlowNodeProps = {
 export type BehaviorFlowNode = Node<BehaviorFlowNodeProps>;
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
+  const { setEdges } = useReactFlow();
   const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
-  if (!nodeId || !nodeTypeId) {
+  const { getNodeTypeById } = useNodeTypesContext();
+  const nodeTypeAttributes = nodeTypeId ? getNodeTypeById(nodeTypeId) : null;
+  const { typeId, inParams = [], outParams = [], outPorts = [] } = nodeTypeAttributes || {};
+  const prevOutPortsRef = useRef<string[]>(outPorts);
+
+  const isDataInvalid = !nodeId || !nodeTypeId;
+  const isUnknownType = nodeId && nodeTypeId && !nodeTypeAttributes;
+
+  const outPortsChanged = () => {
+    if (prevOutPortsRef.current.length !== outPorts.length) return true;
+    return !prevOutPortsRef.current.every((port, index) => port === outPorts[index]);
+  };
+
+  useLayoutEffect(() => {
+    const portsChanged = outPortsChanged();
+    if (isDataInvalid || isUnknownType || portsChanged) {
+      // Remove edges connected to this node
+      setEdges((edges) => edges.filter((edge) => edge.source !== props.id && edge.target !== props.id));
+    }
+    prevOutPortsRef.current = outPorts;
+  }, [isDataInvalid, isUnknownType, nodeTypeId, outPorts, props.id, setEdges]);
+
+  if (isDataInvalid) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
   }
-
-  // Dynamically look up node type from context - will re-render when nodeTypes change
-  const { getNodeTypeById } = useNodeTypesContext();
-  const nodeTypeAttributes = getNodeTypeById(nodeTypeId);
-
-  if (!nodeTypeAttributes) {
+  if (isUnknownType) {
     return <div className="behavior-flow-node error">Unknown node type: {nodeTypeId}</div>;
   }
 
-  const { typeId, inParams = [], outParams = [], outPorts = [] } = nodeTypeAttributes;
   const has_non_label_out_port_only = outPorts.length === 1 && outPorts[0].length === 0;
   const is_content =
     inParams.length > 0 || outParams.length > 0 || (outPorts.length > 0 && !has_non_label_out_port_only);
