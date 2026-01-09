@@ -14,7 +14,6 @@ export interface NodeTypesProviderProps {
 
 export function NodeTypesProvider({ initialNodeTypes, children }: NodeTypesProviderProps) {
   const nodeTypesState = useNodeTypes(initialNodeTypes);
-
   return <NodeTypesContext.Provider value={nodeTypesState}>{children}</NodeTypesContext.Provider>;
 }
 

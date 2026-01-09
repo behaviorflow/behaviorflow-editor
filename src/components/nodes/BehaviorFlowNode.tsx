@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect } from "react";
 import { Handle, Position, NodeProps, Node, useReactFlow } from "@xyflow/react";
 import { BfNodeAttributes, NodeParam } from "../../types";
-import { useNodeTypesContext } from "../../contexts";
+import { useNodeTypesContext, useSettingsContext } from "../../contexts";
 import { SIMPLE_NODE_HANDLE_ID } from "../../constants.ts";
 
 export type BehaviorFlowNodeProps = {
@@ -12,8 +12,9 @@ export type BehaviorFlowNode = Node<BehaviorFlowNodeProps>;
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
   const { setEdges } = useReactFlow();
-  const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
+  const { showNodeIds } = useSettingsContext();
   const { getNodeTypeById } = useNodeTypesContext();
+  const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
   const nodeTypeAttributes = nodeTypeId ? getNodeTypeById(nodeTypeId) : null;
   const { typeId, inParams = [], outParams = [], outPorts = [] } = nodeTypeAttributes || {};
   const prevOutPortsRef = useRef<string[]>(outPorts);
@@ -52,8 +53,8 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
     <div className="behavior-flow-node">
       <Handle type="target" position={Position.Left} />
       <div className={nodeHeaderClass}>
-        <div className="name-label">{typeId}</div>
-        {/* <div className="type-label">{nodeType}</div> */}
+        <div className="type-label">{typeId}</div>
+        {showNodeIds && <div className="name-label">{nodeId}</div>}
       </div>
       {is_content && (
         <div className="node-content">

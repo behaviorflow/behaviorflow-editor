@@ -5,7 +5,7 @@
 }
 
 .activity-bar {
-  --activity-bar-width: 52px;
+  --activity-bar-width: 3.5rem;
   display: flex;
   flex-direction: column;
   background-color: var(--background-secondary);

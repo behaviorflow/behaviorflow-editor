@@ -22,7 +22,7 @@
 }
 
 .modal-window {
-	background-color: var(--background);
+	background-color: var(--background-secondary);
 	border-radius: 8px;
 	border: 1px solid var(--text-primary);
 	max-width: 448px;
@@ -76,7 +76,7 @@
 }
 
 .modal-buttons button {
-	background-color: var(--background-secondary);
+	background-color: var(--background);
 	border: 1px solid transparent;
 	border-radius: 0.25em;
 	padding: 0.5em 1em;

@@ -20,6 +20,7 @@ import "./App.css";
 
 import { Menu, Workflow, Settings } from "lucide-react";
 import NodeIdManager from "./utils/NodeIdManager";
+import { SettingsProvider } from "./contexts/SettingsContext";
 
 const initialNodes: ReactFlowNode[] = [
   {
@@ -59,6 +60,7 @@ function AppContent() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
+  const [showNodeIds, setShowNodeIds] = useLocalStorage("showNodeIds", false);
   const { nodeTypes } = useNodeTypesContext();
   const [graphData, setGraphData] = React.useState<{ nodes: ReactFlowNode[]; edges: ReactFlowEdge[] }>({
     nodes: initialNodes,
@@ -89,9 +91,14 @@ function AppContent() {
       onChange: (checked) => setTheme(checked ? "dark" : "light"),
     },
     {
-      label: "Hide Mini Map",
-      isOn: !showMiniMap,
-      onChange: (checked) => setShowMiniMap(!checked),
+      label: "Show Node IDs",
+      isOn: showNodeIds,
+      onChange: (checked) => setShowNodeIds(checked),
+    },
+    {
+      label: "Show Mini Map",
+      isOn: showMiniMap,
+      onChange: (checked) => setShowMiniMap(checked),
     },
   ];
 
@@ -134,6 +141,7 @@ function AppContent() {
 
   return (
     <div className="app" data-theme={theme}>
+      <SettingsProvider value={{ showNodeIds }}>
       <div className="activity-bar-container">
         <ActivityBar activityBarItems={activityBarItems} />
       </div>
@@ -146,6 +154,7 @@ function AppContent() {
           onGraphUpdate={handleGraphUpdate}
         />
       </div>
+      </SettingsProvider>
     </div>
   );
 }
