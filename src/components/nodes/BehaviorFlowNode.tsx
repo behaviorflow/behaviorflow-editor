@@ -4,13 +4,18 @@ import { BfNodeAttributes, NodeParam } from "../../types";
 import { useNodeTypesContext, useSettingsContext } from "../../contexts";
 import { SIMPLE_NODE_HANDLE_ID } from "../../constants.ts";
 
-export type BehaviorFlowNodeProps = {
+type BehaviorFlowNodeDataProps = {
   nodeAttributes: BfNodeAttributes;
 };
 
-export type BehaviorFlowNode = Node<BehaviorFlowNodeProps>;
+type BehaviorFlowNodeType = Node<BehaviorFlowNodeDataProps>;
 
-function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
+interface BehaviorFlowNodeProps {
+  isPreview?: boolean;
+}
+
+function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowNodeProps) {
+  const isPreview = props.isPreview ?? false;
   const { setEdges } = useReactFlow();
   const { showNodeIds } = useSettingsContext();
   const { getNodeTypeById } = useNodeTypesContext();
@@ -51,10 +56,10 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
 
   return (
     <div className="behavior-flow-node">
-      <Handle type="target" position={Position.Left} />
+      {!isPreview && <Handle type="target" position={Position.Left} />}
       <div className={nodeHeaderClass}>
         <div className="type-label">{typeId}</div>
-        {showNodeIds && <div className="name-label">{nodeId}</div>}
+        {showNodeIds && !isPreview && <div className="name-label">{nodeId}</div>}
       </div>
       {is_content && (
         <div className="node-content">
@@ -76,7 +81,9 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
                 outPorts.map((port: string, index: number) => (
                   <div key={nodeId + "-port-" + port} className="out-port-row">
                     <span className="out-port-label">{port}:</span>
-                    <Handle type="source" position={Position.Right} id={`${port}`} className="out-port" />
+                    {!isPreview && (
+                      <Handle type="source" position={Position.Right} id={`${port}`} className="out-port" />
+                    )}
                   </div>
                 ))}
             </div>
@@ -96,7 +103,9 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNode>) {
           </div>
         </div>
       )}
-      {has_non_label_out_port_only && <Handle type="source" position={Position.Right} id={SIMPLE_NODE_HANDLE_ID} />}
+      {has_non_label_out_port_only && !isPreview && (
+        <Handle type="source" position={Position.Right} id={SIMPLE_NODE_HANDLE_ID} />
+      )}
     </div>
   );
 }

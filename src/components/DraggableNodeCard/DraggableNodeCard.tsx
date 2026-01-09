@@ -3,6 +3,7 @@ import { GripVertical, LockKeyhole } from "lucide-react";
 import { BfNodeTypeAttributes } from "../../types";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import "./draggable-node-card.css";
+import { ReactFlowNodeTypes } from "../../constants";
 
 interface DraggableNodeCardProps {
   nodeType: BfNodeTypeAttributes;
@@ -13,8 +14,14 @@ interface DraggableNodeCardProps {
 export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = false }: DraggableNodeCardProps) {
   const [showCallout, setShowCallout] = useState(false);
   const calloutTimer = useRef<number | null>(null);
-  const handleDragStart = (e) => {
+  const dragImageRef = useRef<HTMLDivElement>(null);
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("application/json", JSON.stringify(nodeType.typeId));
+    if (dragImageRef.current) {
+      const rect = dragImageRef.current.getBoundingClientRect();
+      e.dataTransfer.setDragImage(dragImageRef.current, 0, 0);
+    }
     if (calloutTimer.current) {
       window.clearTimeout(calloutTimer.current);
     }
@@ -33,6 +40,10 @@ export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = f
   };
   return (
     <div>
+      <div style={{ position: "absolute", top: -9999, left: -9999, pointerEvents: "none" }} ref={dragImageRef}>
+        {/* Hidden drag image node */}
+        <BehaviorFlowNodePreview nodeType={nodeType} nodeId="drag-image-preview" />
+      </div>
       <div
         className={`draggable-node-card ${isSelected ? "selected" : ""}`}
         draggable={true}
@@ -51,20 +62,29 @@ export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = f
 function DraggableNodeCardCallout({ nodeType }: { nodeType: BfNodeTypeAttributes }) {
   return (
     <div className="draggable-node-card-callout">
-      <div className="draggable-node-card-callout-title">{nodeType.typeId}</div>
-      <div className="draggable-node-card-callout-content">
-        <div className="draggable-node-card-callout-section">
-          <strong>In Params:</strong>{" "}
-          {nodeType.inParams.length > 0 ? nodeType.inParams.map((p) => p.paramName).join(", ") : "None"}
-        </div>
-        <div className="draggable-node-card-callout-section">
-          <strong>Out Params:</strong>{" "}
-          {nodeType.outParams.length > 0 ? nodeType.outParams.map((p) => p.paramName).join(", ") : "None"}
-        </div>
-        <div className="draggable-node-card-callout-section">
-          <strong>Out Ports:</strong> {nodeType.outPorts.length > 0 ? nodeType.outPorts.join(", ") : "None"}
-        </div>
-      </div>
+      <BehaviorFlowNodePreview nodeType={nodeType} nodeId="callout-preview" />
     </div>
+  );
+}
+
+function BehaviorFlowNodePreview({ nodeType, nodeId }: { nodeType: BfNodeTypeAttributes; nodeId: string }) {
+  return (
+    <BehaviorFlowNode
+      id={nodeId}
+      type={ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE}
+      data={{
+        nodeAttributes: {
+          nodeId,
+          nodeTypeId: nodeType.typeId,
+        },
+      }}
+      selected={false}
+      dragging={false}
+      zIndex={1}
+      isConnectable={false}
+      positionAbsoluteX={0}
+      positionAbsoluteY={0}
+      isPreview={true}
+    />
   );
 }

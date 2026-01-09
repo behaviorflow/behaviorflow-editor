@@ -46,24 +46,10 @@
 
 .draggable-node-card-callout {
   position: absolute;
-  background-color: var(--background-secondary);
+  background-color: var(--editor-background);
   border: 1px solid var(--text-primary);
   border-radius: 5px;
   padding: 10px;
   margin-top: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-}
-
-.draggable-node-card-callout-title {
-  font-weight: bold;
-}
-
-.draggable-node-card-callout-content {
-  margin-top: 5px;
-  font-size: 0.9em;
-}
-
-.draggable-node-card-callout-section {
-  margin-top: 2px;
 }
