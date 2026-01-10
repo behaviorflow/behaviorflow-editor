@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -11,17 +11,21 @@ import {
   Node,
   Connection,
   useReactFlow,
-  NodeToolbar,
+  useKeyPress,
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BehaviorFlowNodeData } from "../nodes/BehaviorFlowNode";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import StartNode from "../nodes/StartNode";
-import { BfNodeTypeAttributes } from "../../types";
+import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
 import { ReactFlowNodeTypes, NodeColors } from "../../constants";
 import { useNodeTypesContext } from "../../contexts";
 import "./react-flow.css";
+
+const SNAP_KEY = 'Shift';
+const MULTI_SELECT_KEY = 'Control';
+const GRID_SIZE = 15;
 
 const reactFlowNodeTypes = {
   behaviorFlowNode: BehaviorFlowNode,
@@ -45,6 +49,7 @@ export default function ReactFlowContent({
 }: ReactFlowComponentProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const isSnapping = useKeyPress(SNAP_KEY);
 
   // Call onGraphUpdate whenever nodes or edges change
   useEffect(() => {
@@ -115,11 +120,22 @@ export default function ReactFlowContent({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         deleteKeyCode={deleteKeyCode}
+        selectionKeyCode={MULTI_SELECT_KEY}
+        multiSelectionKeyCode={MULTI_SELECT_KEY}
+        snapToGrid={isSnapping}
+        snapGrid={[GRID_SIZE, GRID_SIZE]}
         fitView>
         <Controls />
-        {showMiniMap && <MiniMap pannable zoomable nodeColor={(node) => minimapNodeColor(node, getNodeTypeById)} nodeStrokeColor={minimapNodeStrokeColor} nodeStrokeWidth={4} />}{" "}
-        {/* Todo: Add props to customize MiniMap */}
-        <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
+        {showMiniMap && (
+          <MiniMap
+            pannable
+            zoomable
+            nodeColor={(node) => minimapNodeColor(node, getNodeTypeById)}
+            nodeStrokeColor={minimapNodeStrokeColor}
+            nodeStrokeWidth={4}
+          />
+        )}
+        <Background color="#666666" variant={BackgroundVariant.Dots} gap={GRID_SIZE} size={1} />
       </ReactFlow>
     </div>
   );
@@ -134,12 +150,14 @@ function minimapNodeColor(node: Node, getNodeTypeById: (id: string) => BfNodeTyp
       if (category && category in NodeColors.BfNodeCategoryColors) {
         return NodeColors.BfNodeCategoryColors[category];
       }
-      return "#6b6b6bff";
+      console.warn("Unknown category for minimap color:", category);
+      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Simple];
     }
     case ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE:
       return NodeColors.StartNodeColor;
     default:
-      return "#6b6b6bff";
+      console.warn("Unknown node type for minimap color:", node.type);
+      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Simple];
   }
 }
 
