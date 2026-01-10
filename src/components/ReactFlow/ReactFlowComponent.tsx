@@ -15,10 +15,12 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { BehaviorFlowNodeData } from "../nodes/BehaviorFlowNode";
 import BehaviorFlowNode from "../nodes/BehaviorFlowNode";
 import StartNode from "../nodes/StartNode";
 import { BfNodeTypeAttributes } from "../../types";
-import { ReactFlowNodeTypes } from "../../constants";
+import { ReactFlowNodeTypes, NodeColors } from "../../constants";
+import { useNodeTypesContext } from "../../contexts";
 import "./react-flow.css";
 
 const reactFlowNodeTypes = {
@@ -34,7 +36,7 @@ export interface ReactFlowComponentProps {
   onGraphUpdate: (nodes: Node[], edges: Edge[]) => void;
 }
 
-function ReactFlowContent({
+export default function ReactFlowContent({
   initialNodes,
   initialEdges,
   showMiniMap,
@@ -99,6 +101,8 @@ function ReactFlowContent({
 
   const deleteKeyCode = ["Backspace", "Delete"];
 
+  const { getNodeTypeById } = useNodeTypesContext();
+
   return (
     <div className="react-flow-component">
       <ReactFlow
@@ -113,7 +117,7 @@ function ReactFlowContent({
         deleteKeyCode={deleteKeyCode}
         fitView>
         <Controls />
-        {showMiniMap && <MiniMap pannable zoomable nodeColor={minimapNodeColor} />}{" "}
+        {showMiniMap && <MiniMap pannable zoomable nodeColor={(node) => minimapNodeColor(node, getNodeTypeById)} nodeStrokeColor={minimapNodeStrokeColor} nodeStrokeWidth={4} />}{" "}
         {/* Todo: Add props to customize MiniMap */}
         <Background color="#666666" variant={BackgroundVariant.Dots} gap={15} size={1} />
       </ReactFlow>
@@ -121,22 +125,27 @@ function ReactFlowContent({
   );
 }
 
-export default function ReactFlowComponent(props: ReactFlowComponentProps) {
-  return <ReactFlowContent {...props} />;
-}
-
-function minimapNodeColor(node: { type?: string }) {
-  // Maybe eventually just nodeColor
+function minimapNodeColor(node: Node, getNodeTypeById: (id: string) => BfNodeTypeAttributes | undefined) {
   switch (node.type) {
-    case ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE:
-      return "#7c36e5ff";
+    case ReactFlowNodeTypes.BEHAVIOR_FLOW_NODE_REACT_FLOW_TYPE: {
+      const nodeData = node.data as BehaviorFlowNodeData;
+      const nodeType = getNodeTypeById(nodeData?.nodeAttributes?.nodeTypeId || "");
+      const category = nodeType?.category as keyof typeof NodeColors.BfNodeCategoryColors;
+      if (category && category in NodeColors.BfNodeCategoryColors) {
+        return NodeColors.BfNodeCategoryColors[category];
+      }
+      return "#6b6b6bff";
+    }
     case ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE:
-      return "#6ed5deff";
-    case "successNode":
-      return "#6ede87";
-    case "failureNode":
-      return "#d64c4c";
+      return NodeColors.StartNodeColor;
     default:
       return "#6b6b6bff";
   }
+}
+
+function minimapNodeStrokeColor(node: Node) {
+  if (node.selected) {
+    return "rgb(255, 227, 100)";
+  }
+  return "transparent";
 }

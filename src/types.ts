@@ -9,12 +9,12 @@ export type NodeParam = {
 };
 
 export enum BfNodeTypeCategory {
-  Action,
-  Condition,
-  Simple,
-  Success,
-  Failure,
-  Custom,
+  Action = "Action",
+  Condition = "Condition",
+  Simple = "Simple",
+  Success = "Success",
+  Failure = "Failure",
+  Custom = "Custom",
 }
 
 export type BfNodeTypeAttributes = {

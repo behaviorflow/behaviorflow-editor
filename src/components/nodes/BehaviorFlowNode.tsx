@@ -2,13 +2,14 @@ import { useRef, useLayoutEffect } from "react";
 import { Handle, Position, NodeProps, Node, useReactFlow } from "@xyflow/react";
 import { BfNodeAttributes, NodeParam } from "../../types";
 import { useNodeTypesContext, useSettingsContext } from "../../contexts";
-import { SIMPLE_NODE_HANDLE_ID } from "../../constants.ts";
+import { SIMPLE_NODE_HANDLE_ID, NodeColors } from "../../constants.ts";
+import { BfNodeTypeCategory } from "../../types";
 
-type BehaviorFlowNodeDataProps = {
+export type BehaviorFlowNodeData = {
   nodeAttributes: BfNodeAttributes;
 };
 
-type BehaviorFlowNodeType = Node<BehaviorFlowNodeDataProps>;
+type BehaviorFlowNodeType = Node<BehaviorFlowNodeData>;
 
 interface BehaviorFlowNodeProps {
   isPreview?: boolean;
@@ -21,7 +22,7 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
   const { getNodeTypeById } = useNodeTypesContext();
   const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
   const nodeTypeAttributes = nodeTypeId ? getNodeTypeById(nodeTypeId) : null;
-  const { typeId, inParams = [], outParams = [], outPorts = [] } = nodeTypeAttributes || {};
+  const { typeId, inParams = [], outParams = [], outPorts = [], category } = nodeTypeAttributes || {};
   const prevOutPortsRef = useRef<string[]>(outPorts);
 
   const isDataInvalid = !nodeId || !nodeTypeId;
@@ -52,12 +53,13 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
   const is_content =
     inParams.length > 0 || outParams.length > 0 || (outPorts.length > 0 && !has_non_label_out_port_only);
 
+  const nodeBackgroundColor = category ? NodeColors.BfNodeCategoryColors[category as BfNodeTypeCategory] : "#eee";
   const nodeHeaderClass = `node-header${!is_content ? " node-header--no-content" : ""}`;
 
   return (
     <div className="behavior-flow-node">
       {!isPreview && <Handle type="target" position={Position.Left} />}
-      <div className={nodeHeaderClass}>
+      <div className={nodeHeaderClass} style={{ backgroundColor: nodeBackgroundColor }}>
         <div className="type-label">{typeId}</div>
         {showNodeIds && !isPreview && <div className="name-label">{nodeId}</div>}
       </div>

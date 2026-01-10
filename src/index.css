@@ -24,7 +24,7 @@
   --text-disabled: rgb(143, 143, 143);
   --text-error: #b00020ff;
   --border: black;
-  --border-selected: #03c226;
+  --border-selected: #45ff7d;
   --xy-edge-stroke: #00254d;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
   --xy-edge-stroke-selected: #e3801e;
