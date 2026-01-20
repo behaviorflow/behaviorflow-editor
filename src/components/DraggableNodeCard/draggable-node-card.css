@@ -6,6 +6,7 @@
   color: var(--text-primary);
   padding: 0.14em;
   cursor: grab;
+  transition: background-color 0.2s ease;
 }
 
 .draggable-node-card:hover {

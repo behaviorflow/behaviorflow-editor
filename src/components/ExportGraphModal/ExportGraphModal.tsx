@@ -1,6 +1,7 @@
 import Modal from "../ui/Modal/Modal";
 import "./export-graph-modal.css";
 import React, { useState } from "react";
+import useLocalStorage from "use-local-storage";
 
 interface ExportGraphModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface ExportGraphModalProps {
 
 const DEFAULT_FILE_NAME = "behavior-flow-graph.json";
 const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalProps) => {
-  const [fileName, setFileName] = useState(DEFAULT_FILE_NAME);
+  const [fileName, setFileName] = useLocalStorage("exportFileName", DEFAULT_FILE_NAME);
 
   const handleNameInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
@@ -19,7 +20,6 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
   const [error, setError] = useState("");
 
   const resetAndExit = () => {
-    setFileName(DEFAULT_FILE_NAME);
     setError("");
     onClose();
   };
