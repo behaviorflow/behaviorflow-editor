@@ -118,19 +118,19 @@ function AppContent() {
     {
       itemName: "Menu",
       nameDisplay: "Menu",
-      symbol: <Menu />,
+      icon: <Menu />,
       content: <BehaviorFlowMenu menuItems={menuItems} />,
     },
     {
       itemName: "Node Palette",
       nameDisplay: "Nodes",
-      symbol: <Workflow />,
+      icon: <Workflow />,
       content: <NodePalette />,
     },
     {
       itemName: "Settings",
       nameDisplay: "Settings",
-      symbol: <Settings />,
+      icon: <Settings />,
       content: <BehaviorFlowSettings toggles={settingsToggles} />,
     },
   ];

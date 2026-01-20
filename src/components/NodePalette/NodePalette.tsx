@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
-import SimpleSymbolButton from "../ui/SimpleSymbolButton/SimpleSymbolButton";
+import SimpleButtonWithIcon from "../ui/SimpleButtonWithIcon/SimpleButtonWithIcon";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
 import { useNodeTypesContext } from "../../contexts";
 import { Plus, Trash2 } from "lucide-react";
@@ -47,7 +47,7 @@ export default function NodePalette() {
   const newNodeTypeCallback = (
     nodeTypeName: string,
     outPorts: string[],
-    category: BfNodeTypeCategory
+    category: BfNodeTypeCategory,
   ): [boolean, string] => {
     if (nodeTypeName.trim() !== nodeTypeName) {
       return [false, "Node type names cannot have leading or trailing whitespace."];
@@ -77,12 +77,12 @@ export default function NodePalette() {
   return (
     <div className="node-palette" onClick={handleBackgroundClick} ref={nodePaletteRef}>
       <div className="node-palette-controls">
-        <SimpleSymbolButton
+        <SimpleButtonWithIcon
           onClick={() => setIsNewNodeTypeModalOpen(true)}
           buttonName="New Node Type"
-          symbol={<Plus />}
+          icon={<Plus />}
         />
-        <SimpleSymbolButton
+        <SimpleButtonWithIcon
           onClick={() => {
             if (isEditableNodeSelected) {
               deleteNodeType(activeItem.typeId);
@@ -90,7 +90,7 @@ export default function NodePalette() {
             }
           }}
           buttonName="Delete Node Type"
-          symbol={<Trash2 />}
+          icon={<Trash2 />}
           isEnabled={isEditableNodeSelected}
         />
       </div>

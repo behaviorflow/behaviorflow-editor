@@ -6,7 +6,7 @@ import Sidebar from "../Sidebar/Sidebar.tsx";
 interface ActivityBarItem {
   itemName: string;
   nameDisplay: string;
-  symbol: React.ReactNode;
+  icon: React.ReactNode;
   content: React.ReactNode;
 }
 
@@ -35,7 +35,7 @@ export default function ActivityBar({ activityBarItems }: ActivityBarProps) {
             key={item.itemName}
             fullName={item.itemName}
             displayName={item.nameDisplay}
-            symbol={item.symbol}
+            icon={item.icon}
             onClick={() => onClickCallback(item)}
             isActive={activeItemName === item.itemName}
           />

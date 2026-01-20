@@ -1,4 +1,4 @@
-.simple-symbol-button {
+.simple-button-with-icon {
 	width: 30px;
 	height: 30px;
 	border: none;
@@ -13,31 +13,31 @@
 	color: var(--text-disabled);
 }
 
-.simple-symbol-button.enabled {
+.simple-button-with-icon.enabled {
 	color: var(--text-primary);
 	cursor: pointer;
 }
 
-.simple-symbol-button.enabled:hover {
+.simple-button-with-icon.enabled:hover {
 	background-color: var(--background-hover);
 }
 
-.symbol-container {
+.icon-container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.symbol-container svg {
+.icon-container svg {
 	width: 18px;
 	height: 18px;
 }
 
-.simple-symbol-button:focus {
+.simple-button-with-icon:focus {
 	outline: none;
 }
 
-.simple-symbol-button:focus-visible {
+.simple-button-with-icon:focus-visible {
 	outline: 2px solid var(--accent-color, var(--text-primary));
 	outline-offset: 0px;
 }
