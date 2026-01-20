@@ -24,7 +24,7 @@
 .draggable-node-card-grip {
   width: 1.0em;
   height: 1.0em;
-  color: var(--text-color);
+  color: var(--text-secondary);
   vertical-align: middle;
 }
 

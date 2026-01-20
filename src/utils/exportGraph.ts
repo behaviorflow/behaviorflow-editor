@@ -1,6 +1,7 @@
 import { Node as ReactFlowNode, Edge as ReactFlowEdge } from "@xyflow/react";
+import { downloadFile } from "./downloadFile";
 import { BfNodeTypeAttributes } from "../types";
-import { ReactFlowNodeTypes, NodeTypeIds } from "../constants";
+import { ReactFlowNodeTypes } from "../constants";
 import { SIMPLE_NODE_HANDLE_ID } from "../constants";
 
 // JSON format types
@@ -29,10 +30,7 @@ function exportNodeType(nodeType: BfNodeTypeAttributes): ExportedNodeType {
 }
 
 function isStartNode(node: ReactFlowNode): boolean {
-  return (
-    // todo: revisit
-    node.type === ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE || node.id === NodeTypeIds.START_NODE_TYPE_ID
-  );
+  return node.type === ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE;
 }
 
 function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[]): string | null {
@@ -73,7 +71,7 @@ function buildTransitions(nodeId: string, edges: ReactFlowEdge[], expectedHandle
 function exportNode(
   node: ReactFlowNode,
   edges: ReactFlowEdge[],
-  nodeTypes: Map<string, BfNodeTypeAttributes>
+  nodeTypes: Map<string, BfNodeTypeAttributes>,
 ): ExportedNode | null {
   if (isStartNode(node)) {
     return null;
@@ -87,7 +85,7 @@ function exportNode(
   const nodeTypeAttributes = nodeTypes.get(nodeAttributes.nodeTypeId);
   if (!nodeTypeAttributes) {
     console.warn(
-      `Skipping export of node ${node.id} (${nodeAttributes.nodeId}) because node type ${nodeAttributes.nodeTypeId} is unknown.`
+      `Skipping export of node ${node.id} (${nodeAttributes.nodeId}) because node type ${nodeAttributes.nodeTypeId} is unknown.`,
     );
     return null;
   }
@@ -141,7 +139,7 @@ function bfsOrderNodes(nodes: ReactFlowNode[], edges: ReactFlowEdge[], startNode
 function exportGraph(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
-  nodeTypes: Map<string, BfNodeTypeAttributes>
+  nodeTypes: Map<string, BfNodeTypeAttributes>,
 ): ExportedGraph {
   const exportedNodeTypes: ExportedNodeType[] = Array.from(nodeTypes.values()).map(exportNodeType);
   const startNodeId = findStartNodeId(nodes, edges);
@@ -165,20 +163,9 @@ export function exportGraphAsJson(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
-  filename: string = "behavior-flow-graph.json"
+  filename: string = "behavior-flow-graph.json",
 ): void {
   const exportedGraph = exportGraph(nodes, edges, nodeTypes);
   const jsonGraph = JSON.stringify(exportedGraph, null, 2);
-
-  const blob = new Blob([jsonGraph], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
+  downloadFile(jsonGraph, filename, "application/json");
 }

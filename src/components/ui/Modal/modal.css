@@ -92,3 +92,40 @@
 	opacity: 0.5;
 	cursor: not-allowed;
 }
+
+.modal-field-label {
+	color: var(--text-primary);
+	display: inline-block;
+	margin-right: 0.5em;
+	font-weight: 500;
+}
+
+.modal-input {
+	width: 30ch;
+	max-width: 100%;
+	padding: 0.5em 0.75em;
+	font-size: 1em;
+	font-family: inherit;
+	color: var(--text-primary);
+	background-color: var(--background);
+	border: 1px solid var(--text-disabled);
+	border-radius: 0.25em;
+	box-sizing: border-box;
+	transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+	outline: none;
+	border-color: var(--select-outline);
+}
+
+.modal-input::placeholder {
+	color: var(--text-disabled);
+}
+
+.modal-error-message {
+	color: var(--text-error);
+	margin-top: 0.75em;
+	font-size: 0.98em;
+	font-weight: 500;
+}

@@ -1,4 +1,5 @@
 import Modal from "../ui/Modal/Modal";
+import "../ui/Modal/modal.css";
 import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
 import "./new-node-type-modal.css";
@@ -67,9 +68,9 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
     <div>
       <Modal isOpen={isOpen} onClose={handleCancel} title="New Node Type">
         <div>
-          <label className="field-label">Node Type Name: </label>
+          <label className="modal-field-label">Node Type Name: </label>
           <input
-            className="node-type-name-input"
+            className="modal-input"
             type="text"
             placeholder="Enter node type name"
             value={nodeTypeName}
@@ -85,10 +86,10 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
         />
         {error && <div className="modal-error-message">{error}</div>}
         <div className="modal-buttons">
-          <button className="create-button" onClick={handleCreate} disabled={!nodeTypeName.trim()}>
+          <button onClick={handleCreate} disabled={!nodeTypeName.trim()}>
             Create
           </button>
-          <button className="cancel-button" onClick={handleCancel}>
+          <button onClick={handleCancel}>
             Cancel
           </button>
         </div>

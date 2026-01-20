@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Edge as ReactFlowEdge, Node as ReactFlowNode, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -21,6 +21,8 @@ import "./App.css";
 import { Menu, Workflow, Settings } from "lucide-react";
 import NodeIdManager from "./utils/NodeIdManager";
 import { SettingsProvider } from "./contexts/SettingsContext";
+
+import ExportGraphModal from "./components/ExportGraphModal/ExportGraphModal";
 
 const initialNodes: ReactFlowNode[] = [
   {
@@ -71,16 +73,26 @@ function AppContent() {
     setGraphData({ nodes, edges });
   }, []);
 
+  const [isExportFileSelectModalOpen, setIsExportFileSelectModalOpen] = useState(false);
   const menuItems = [
     {
       label: "Export as JSON",
       onClick: () => {
-        if (!graphData.nodes || !graphData.edges) {
-          console.warn("Graph data not available");
-          return;
-        }
-        exportGraphAsJson(graphData.nodes, graphData.edges, nodeTypes);
+        setIsExportFileSelectModalOpen(true);
       },
+      children: (
+        <ExportGraphModal
+          isOpen={isExportFileSelectModalOpen}
+          onClose={() => setIsExportFileSelectModalOpen(false)}
+          onExportGraph={(fileName: string) => {
+            if (!graphData.nodes || !graphData.edges) {
+              console.warn("Graph data not available");
+              return;
+            }
+            exportGraphAsJson(graphData.nodes, graphData.edges, nodeTypes, fileName);
+          }}
+        />
+      ),
     },
   ];
 
@@ -142,18 +154,18 @@ function AppContent() {
   return (
     <div className="app" data-theme={theme}>
       <SettingsProvider value={{ showNodeIds }}>
-      <div className="activity-bar-container">
-        <ActivityBar activityBarItems={activityBarItems} />
-      </div>
-      <div className="react-flow-container">
-        <ReactFlowComponent
-          initialNodes={initialNodes}
-          initialEdges={initialEdges}
-          showMiniMap={showMiniMap}
-          generateReactNode={generateReactNode}
-          onGraphUpdate={handleGraphUpdate}
-        />
-      </div>
+        <div className="activity-bar-container">
+          <ActivityBar activityBarItems={activityBarItems} />
+        </div>
+        <div className="react-flow-container">
+          <ReactFlowComponent
+            initialNodes={initialNodes}
+            initialEdges={initialEdges}
+            showMiniMap={showMiniMap}
+            generateReactNode={generateReactNode}
+            onGraphUpdate={handleGraphUpdate}
+          />
+        </div>
       </SettingsProvider>
     </div>
   );
