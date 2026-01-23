@@ -19,7 +19,6 @@ export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = f
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("application/json", JSON.stringify(nodeType.typeId));
     if (dragImageRef.current) {
-      const rect = dragImageRef.current.getBoundingClientRect();
       e.dataTransfer.setDragImage(dragImageRef.current, 0, 0);
     }
     if (calloutTimer.current) {
@@ -40,7 +39,7 @@ export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = f
   };
   return (
     <div>
-      <div style={{ position: "absolute", top: -9999, left: -9999, pointerEvents: "none" }} ref={dragImageRef}>
+      <div style={{ position: "fixed", top: -9999, left: -9999, pointerEvents: "none" }} ref={dragImageRef}>
         {/* Hidden drag image node */}
         <BehaviorFlowNodePreview nodeType={nodeType} nodeId="drag-image-preview" />
       </div>
