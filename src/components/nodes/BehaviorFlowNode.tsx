@@ -7,6 +7,8 @@ import { BfNodeTypeCategory } from "../../types";
 
 export type BehaviorFlowNodeData = {
   nodeAttributes: BfNodeAttributes;
+  measuredWidth?: number;
+  measuredHeight?: number;
 };
 
 type BehaviorFlowNodeType = Node<BehaviorFlowNodeData>;
@@ -17,13 +19,14 @@ interface BehaviorFlowNodeProps {
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowNodeProps) {
   const isPreview = props.isPreview ?? false;
-  const { setEdges } = useReactFlow();
+  const { setEdges, updateNode } = useReactFlow();
   const { showNodeIds } = useSettingsContext();
   const { getNodeTypeById } = useNodeTypesContext();
   const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
   const nodeTypeAttributes = nodeTypeId ? getNodeTypeById(nodeTypeId) : null;
   const { typeId, inParams = [], outParams = [], outPorts = [], category } = nodeTypeAttributes || {};
   const prevOutPortsRef = useRef<string[]>(outPorts);
+  const nodeRef = useRef<HTMLDivElement>(null);
 
   const isDataInvalid = !nodeId || !nodeTypeId;
   const isUnknownType = nodeId && nodeTypeId && !nodeTypeAttributes;
@@ -42,6 +45,21 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
     prevOutPortsRef.current = outPorts;
   }, [isDataInvalid, isUnknownType, nodeTypeId, outPorts, props.id, setEdges]);
 
+  useLayoutEffect(() => {
+    if (nodeRef.current && !isPreview) {
+      const rect = nodeRef.current.getBoundingClientRect();
+      if (props.data.measuredWidth !== rect.width || props.data.measuredHeight !== rect.height) {
+        updateNode(props.id, {
+          data: {
+            ...props.data,
+            measuredWidth: rect.width,
+            measuredHeight: rect.height,
+          },
+        });
+      }
+    }
+  }, [props.id, updateNode, inParams, outParams, outPorts, typeId, showNodeIds, isPreview, props.data]);
+
   if (isDataInvalid) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
   }
@@ -57,7 +75,7 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
   const nodeHeaderClass = `node-header${!is_content ? " node-header--no-content" : ""}`;
 
   return (
-    <div className="behavior-flow-node">
+    <div className="behavior-flow-node" ref={nodeRef}>
       {!isPreview && <Handle type="target" position={Position.Left} />}
       <div className={nodeHeaderClass} style={{ backgroundColor: nodeBackgroundColor }}>
         <div className="type-label">{typeId}</div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -22,10 +22,47 @@ import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
 import { ReactFlowNodeTypes, NodeColors } from "../../constants";
 import { useNodeTypesContext } from "../../contexts";
 import "./react-flow.css";
+import dagre from "dagre";
 
-const SNAP_KEY = 'Shift';
-const MULTI_SELECT_KEY = 'Control';
+const SNAP_KEY = "Shift";
+const MULTI_SELECT_KEY = "Control";
 const GRID_SIZE = 15;
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "LR") => {
+  const defaultNodeWidth = 60;
+  const defaultNodeHeight = 60;
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: direction, ranksep: 50, nodesep: 50 });
+
+  nodes.forEach((node) => {
+    const width = typeof node.data?.measuredWidth === "number" ? node.data.measuredWidth : defaultNodeWidth;
+    const height = typeof node.data?.measuredHeight === "number" ? node.data.measuredHeight : defaultNodeHeight;
+    if (width === defaultNodeWidth || height === defaultNodeHeight) {
+      console.warn(`Node ${node.id} missing measuredWidth or measuredHeight, using default.`);
+    }
+    dagreGraph.setNode(node.id, { width, height });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  const layoutedNodes = nodes.map((node) => {
+    const dagreNode = dagreGraph.node(node.id);
+    return {
+      ...node,
+      position: {
+        x: dagreNode.x - dagreNode.width / 2,
+        y: dagreNode.y - dagreNode.height / 2,
+      },
+    };
+  });
+
+  return { nodes: layoutedNodes, edges: edges };
+};
 
 const reactFlowNodeTypes = {
   behaviorFlowNode: BehaviorFlowNode,
@@ -51,21 +88,36 @@ export default function ReactFlowContent({
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const isSnapping = useKeyPress(SNAP_KEY);
 
+  const onLayout = useCallback(() => {
+    const { nodes: layoutedNodes, edges: layoutedEdges }: { nodes: Node[]; edges: Edge[] } = getLayoutedElements(
+      nodes,
+      edges,
+    );
+
+    setNodes([...layoutedNodes]);
+    setEdges([...layoutedEdges]);
+  }, [nodes, edges, setNodes, setEdges]);
+
   // Call onGraphUpdate whenever nodes or edges change
   useEffect(() => {
     onGraphUpdate(nodes, edges);
   }, [nodes, edges, onGraphUpdate]);
 
   const onConnect = useCallback(
-    (connection: Edge | Connection) =>
+    (connection: Edge | Connection) => {
+      const newEdge = {
+        ...connection,
+        type: "default",
+      };
       setEdges((edges) => {
         // Remove any previous edge from the same source handle (to enforce single connection per out port)
         const edgesWithPrevRemoved = edges.filter(
-          (edge) => !(edge.source === connection.source && edge.sourceHandle === connection.sourceHandle)
+          (edge) => !(edge.source === connection.source && edge.sourceHandle === connection.sourceHandle),
         );
-        return addEdge(connection, edgesWithPrevRemoved);
-      }),
-    [setEdges]
+        return addEdge(newEdge, edgesWithPrevRemoved);
+      });
+    },
+    [setEdges],
   );
 
   const insertNode = useCallback(
@@ -73,7 +125,7 @@ export default function ReactFlowContent({
       const newNode = generateReactNode(nodeData, position);
       setNodes((nds) => [...nds, newNode as any]);
     },
-    [generateReactNode, setNodes]
+    [generateReactNode, setNodes],
   );
 
   const { screenToFlowPosition } = useReactFlow();
