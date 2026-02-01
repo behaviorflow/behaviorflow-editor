@@ -3,26 +3,9 @@ import { downloadFile } from "./downloadFile";
 import { BfNodeTypeAttributes } from "../types";
 import { ReactFlowNodeTypes } from "../constants";
 import { SIMPLE_NODE_HANDLE_ID } from "../constants";
+import { GraphNodeTypeDTO, GraphNodeDTO, GraphDTO } from "./graphDtos";
 
-// JSON format types
-interface ExportedNodeType {
-  node_type_id: string;
-  result_ids: string[];
-}
-
-interface ExportedNode {
-  node_id: string;
-  node_type: string;
-  transitions: Record<string, string>;
-}
-
-interface ExportedGraph {
-  node_types: ExportedNodeType[];
-  nodes: ExportedNode[];
-  start_node_id: string | null;
-}
-
-function exportNodeType(nodeType: BfNodeTypeAttributes): ExportedNodeType {
+function toGraphNodeTypeDTO(nodeType: BfNodeTypeAttributes): GraphNodeTypeDTO {
   return {
     node_type_id: nodeType.typeId,
     result_ids: nodeType.outPorts,
@@ -68,11 +51,11 @@ function buildTransitions(nodeId: string, edges: ReactFlowEdge[], expectedHandle
   return transitions;
 }
 
-function exportNode(
+function toGraphNodeDTO(
   node: ReactFlowNode,
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
-): ExportedNode | null {
+): GraphNodeDTO | null {
   if (isStartNode(node)) {
     return null;
   }
@@ -136,22 +119,22 @@ function bfsOrderNodes(nodes: ReactFlowNode[], edges: ReactFlowEdge[], startNode
   return orderedNodes;
 }
 
-function exportGraph(
+function toGraphDTO(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
-): ExportedGraph {
-  const exportedNodeTypes: ExportedNodeType[] = Array.from(nodeTypes.values()).map(exportNodeType);
+): GraphDTO {
+  const nodeTypesDTO: GraphNodeTypeDTO[] = Array.from(nodeTypes.values()).map(toGraphNodeTypeDTO);
   const startNodeId = findStartNodeId(nodes, edges);
   const orderedNodes = bfsOrderNodes(nodes, edges, startNodeId);
 
-  const exportedNodes: ExportedNode[] = orderedNodes
-    .map((node) => exportNode(node, edges, nodeTypes))
-    .filter((node): node is ExportedNode => node !== null);
+  const nodeDTOs: GraphNodeDTO[] = orderedNodes
+    .map((node) => toGraphNodeDTO(node, edges, nodeTypes))
+    .filter((node): node is GraphNodeDTO => node !== null);
 
   return {
-    node_types: exportedNodeTypes,
-    nodes: exportedNodes,
+    node_types: nodeTypesDTO,
+    nodes: nodeDTOs,
     start_node_id: startNodeId,
   };
 }
@@ -159,13 +142,13 @@ function exportGraph(
 /**
  * Exports the graph and downloads it as a JSON file
  */
-export function exportGraphAsJson(
+export function exportGraphAsJsonFile(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
   filename: string = "behavior-flow-graph.json",
 ): void {
-  const exportedGraph = exportGraph(nodes, edges, nodeTypes);
-  const jsonGraph = JSON.stringify(exportedGraph, null, 2);
+  const graphDTO = toGraphDTO(nodes, edges, nodeTypes);
+  const jsonGraph = JSON.stringify(graphDTO, null, 2);
   downloadFile(jsonGraph, filename, "application/json");
 }

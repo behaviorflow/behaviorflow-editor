@@ -11,7 +11,7 @@ import BehaviorFlowSettings, { ToggleSwitchConfig } from "./components/BehaviorF
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
 import { BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
 import { NodeTypesProvider, useNodeTypesContext } from "./contexts";
-import { exportGraphAsJson } from "./utils";
+import { exportGraphAsJsonFile } from "./utils";
 import { NodeTypeIds, ReactFlowNodeTypes } from "./constants";
 
 import useLocalStorage from "use-local-storage";
@@ -89,7 +89,7 @@ function AppContent() {
               console.warn("Graph data not available");
               return;
             }
-            exportGraphAsJson(graphData.nodes, graphData.edges, nodeTypes, fileName);
+            exportGraphAsJsonFile(graphData.nodes, graphData.edges, nodeTypes, fileName);
           }}
         />
       ),

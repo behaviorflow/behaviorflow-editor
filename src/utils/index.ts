@@ -1,2 +1,2 @@
-export { exportGraphAsJson } from "./exportGraph";
+export { exportGraphAsJsonFile } from "./exportGraph";
 export { downloadFile } from "./downloadFile";

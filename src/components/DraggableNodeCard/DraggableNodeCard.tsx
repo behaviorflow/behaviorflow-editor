@@ -11,6 +11,8 @@ interface DraggableNodeCardProps {
   isSelected?: boolean;
 }
 
+const CALLOUT_DELAY_MS = 700;
+
 export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = false }: DraggableNodeCardProps) {
   const [showCallout, setShowCallout] = useState(false);
   const calloutTimer = useRef<number | null>(null);
@@ -29,7 +31,7 @@ export default function DraggableNodeCard({ nodeType, isReadOnly, isSelected = f
   const handleMouseEnter = () => {
     calloutTimer.current = window.setTimeout(() => {
       setShowCallout(true);
-    }, 1000);
+    }, CALLOUT_DELAY_MS);
   };
   const handleMouseLeave = () => {
     if (calloutTimer.current) {
