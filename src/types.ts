@@ -30,3 +30,8 @@ export type BfNodeAttributes = {
   nodeId: string;
   nodeTypeId: string;
 };
+
+export type ResultWithErrorMsgs = {
+  success: boolean;
+  errors: string[];
+};

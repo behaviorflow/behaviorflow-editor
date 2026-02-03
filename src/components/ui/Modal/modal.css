@@ -125,7 +125,7 @@
 
 .modal-error-message {
 	color: var(--text-error);
-	margin-top: 0.75em;
+	margin-top: 0.5em;
 	font-size: 0.98em;
 	font-weight: 500;
 }

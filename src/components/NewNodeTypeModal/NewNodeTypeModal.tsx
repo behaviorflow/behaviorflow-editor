@@ -2,13 +2,14 @@ import Modal from "../ui/Modal/Modal";
 import "../ui/Modal/modal.css";
 import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
+import { CircleX } from "lucide-react";
 import "./new-node-type-modal.css";
-import { BfNodeTypeCategory } from "../../types";
+import { BfNodeTypeCategory, ResultWithErrorMsgs } from "../../types";
 
 interface NewNodeTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => [boolean, string];
+  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => ResultWithErrorMsgs;
 }
 
 interface CategoryConfig {
@@ -39,23 +40,23 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
     setNodeTypeName(event.target.value);
   };
 
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
 
   const resetAndExit = () => {
     setNodeTypeName("");
     setNodeCategoryId(DefaultCategory.id);
-    setError("");
+    setErrors([]);
     onClose();
   };
 
   const handleCreate = () => {
     if (nodeTypeName.trim()) {
       const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DefaultCategory;
-      const [success, errMsg] = onCreateNodeType(nodeTypeName, category.outPorts, category.category);
-      if (success) {
+      const result = onCreateNodeType(nodeTypeName, category.outPorts, category.category);
+      if (result.success) {
         resetAndExit();
       } else {
-        setError(errMsg || "Failed to create node type.");
+        setErrors(result.errors.length > 0 ? result.errors : ["Failed to create node type."]);
       }
     }
   };
@@ -84,14 +85,20 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
           value={nodeCategoryId}
           onChange={setNodeCategoryId}
         />
-        {error && <div className="modal-error-message">{error}</div>}
+        {errors.length > 0 && (
+          <div>
+            {errors.map((e) => (
+              <div className="modal-error-message" key={e}>
+                <CircleX size={14.5} /> {e}
+              </div>
+            ))}
+          </div>
+        )}
         <div className="modal-buttons">
           <button onClick={handleCreate} disabled={!nodeTypeName.trim()}>
             Create
           </button>
-          <button onClick={handleCancel}>
-            Cancel
-          </button>
+          <button onClick={handleCancel}>Cancel</button>
         </div>
       </Modal>
     </div>

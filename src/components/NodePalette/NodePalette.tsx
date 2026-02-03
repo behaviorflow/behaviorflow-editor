@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import DraggableNodeCard from "../DraggableNodeCard/DraggableNodeCard";
 import SimpleButtonWithIcon from "../ui/SimpleButtonWithIcon/SimpleButtonWithIcon";
-import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
+import { BfNodeTypeAttributes, BfNodeTypeCategory, ResultWithErrorMsgs } from "../../types";
 import { useNodeTypesContext } from "../../contexts";
 import { Plus, Trash2 } from "lucide-react";
 import "./node-palette.css";
@@ -43,25 +43,12 @@ export default function NodePalette() {
     }
   };
 
-  // Attempts to add a new node type. Returns [success, errorString].
+  // Attempts to add a new node type.
   const newNodeTypeCallback = (
     nodeTypeName: string,
     outPorts: string[],
     category: BfNodeTypeCategory,
-  ): [boolean, string] => {
-    if (nodeTypeName.trim() !== nodeTypeName) {
-      return [false, "Node type names cannot have leading or trailing whitespace."];
-    }
-    if (nodeTypeName.length < 3 || nodeTypeName.length > 64) {
-      return [false, "Node type names must be between 3 and 64 characters."];
-    }
-    if (!/^[\p{L}\p{N}_ ]+$/u.test(nodeTypeName)) {
-      return [false, "Node type names can only contain letters, numbers, underscores, and spaces."];
-    }
-    const existing = nodeTypes.find((nt) => nt.typeId.toLowerCase() === nodeTypeName.toLowerCase());
-    if (existing) {
-      return [false, "A node type named '" + existing.typeId + "' already exists."];
-    }
+  ): ResultWithErrorMsgs => {
     const newNodeType: BfNodeTypeAttributes = {
       typeId: nodeTypeName,
       inParams: [],
@@ -70,8 +57,7 @@ export default function NodePalette() {
       isReadOnly: false,
       category: category,
     };
-    addNodeType(newNodeType);
-    return [true, ""];
+    return addNodeType(newNodeType);
   };
 
   return (
