@@ -1,6 +1,6 @@
 import Modal from "../ui/Modal/Modal";
 import "./export-graph-modal.css";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useLocalStorage from "use-local-storage";
 
 interface ExportGraphModalProps {
@@ -12,6 +12,21 @@ interface ExportGraphModalProps {
 const DEFAULT_FILE_NAME = "behavior-flow-graph.json";
 const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalProps) => {
   const [fileName, setFileName] = useLocalStorage("exportFileName", DEFAULT_FILE_NAME);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Select input text when modal opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          const value = inputRef.current.value;
+          const ext = ".json";
+          const extIndex = value.endsWith(ext) ? value.length - ext.length : value.length;
+          inputRef.current.setSelectionRange(0, extIndex);
+        }
+      }, 0);
+    }
+  }, [isOpen]);
 
   const handleNameInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
@@ -48,6 +63,7 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
             placeholder="Enter file name"
             value={fileName}
             onChange={handleNameInputChange}
+            ref={inputRef}
           />
         </div>
         {error && <div className="modal-error-message">{error}</div>}
@@ -55,9 +71,7 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
           <button onClick={handleExport} disabled={!fileName.trim()}>
             Export
           </button>
-          <button onClick={handleCancel}>
-            Cancel
-          </button>
+          <button onClick={handleCancel}>Cancel</button>
         </div>
       </Modal>
     </div>
