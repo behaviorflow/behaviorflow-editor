@@ -87,9 +87,9 @@ function AppContent() {
           onExportGraph={(fileName: string) => {
             if (!graphData.nodes || !graphData.edges) {
               console.warn("Graph data not available");
-              return;
+              return { success: false, errors: ["Graph data not available"] };
             }
-            exportGraphAsJsonFile(graphData.nodes, graphData.edges, nodeTypes, fileName);
+            return exportGraphAsJsonFile(graphData.nodes, graphData.edges, nodeTypes, false, fileName);
           }}
         />
       ),

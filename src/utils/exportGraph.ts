@@ -1,6 +1,6 @@
 import { Node as ReactFlowNode, Edge as ReactFlowEdge } from "@xyflow/react";
 import { downloadFile } from "./downloadFile";
-import { BfNodeTypeAttributes } from "../types";
+import { BfNodeTypeAttributes, ResultWithErrorMsgs } from "../types";
 import { ReactFlowNodeTypes } from "../constants";
 import { SIMPLE_NODE_HANDLE_ID } from "../constants";
 import { GraphNodeTypeDTO, GraphNodeDTO, GraphDTO } from "./graphDtos";
@@ -16,22 +16,32 @@ function isStartNode(node: ReactFlowNode): boolean {
   return node.type === ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE;
 }
 
-function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[]): string | null {
+function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[], errors: string[]): string | null {
   const startNode = nodes.find((node) => isStartNode(node));
   if (!startNode) {
+    errors.push("No start node found in the graph.");
     return null;
   }
   const startEdge = edges.find((edge) => edge.source === startNode.id);
-  return startEdge ? startEdge.target : null;
+  if (!startEdge) {
+    errors.push(`Start node has no outgoing edge.`);
+    return null;
+  }
+  return startEdge.target;
 }
 
-function buildTransitions(nodeId: string, edges: ReactFlowEdge[], expectedHandleIds: string[]): Record<string, string> {
+function buildTransitions(
+  nodeId: string,
+  edges: ReactFlowEdge[],
+  expectedHandleIds: string[],
+  errors: string[],
+): Record<string, string> {
   const transitions: Record<string, string> = {};
   // Find all edges originating from this node
   const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
   for (const edge of outgoingEdges) {
     if (!edge.sourceHandle) {
-      console.warn(`Edge from node ${nodeId} is missing sourceHandle, cannot determine transition port.`);
+      errors.push(`Edge from node ${nodeId} is missing sourceHandle, cannot determine transition port.`);
       continue;
     }
     if (edge.sourceHandle === SIMPLE_NODE_HANDLE_ID) {
@@ -43,10 +53,10 @@ function buildTransitions(nodeId: string, edges: ReactFlowEdge[], expectedHandle
   const missing = expectedHandleIds.filter((port) => !Object.keys(transitions).includes(port));
   const extra = Object.keys(transitions).filter((key) => !expectedHandleIds.includes(key));
   if (missing.length > 0) {
-    console.warn(`Not all handles of node ${nodeId} have corresponding edges.`);
+    errors.push(`Not all output ports of node ${nodeId} have corresponding edges.`);
   }
   if (extra.length > 0) {
-    console.warn(`Node ${nodeId} has edges from unknown handles: ${extra.join(", ")}`);
+    errors.push(`Node ${nodeId} has edges from unknown handles: ${extra.join(", ")}`);
   }
   return transitions;
 }
@@ -55,6 +65,7 @@ function toGraphNodeDTO(
   node: ReactFlowNode,
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
+  errors: string[],
 ): GraphNodeDTO | null {
   if (isStartNode(node)) {
     return null;
@@ -62,18 +73,18 @@ function toGraphNodeDTO(
   const nodeData = node.data as { nodeAttributes?: { nodeId: string; nodeTypeId: string } };
   const nodeAttributes = nodeData?.nodeAttributes;
   if (!nodeAttributes) {
-    console.warn(`Node ${node.id} has no nodeAttributes`);
+    errors.push(`Node ${node.id} has no nodeAttributes`);
     return null;
   }
   const nodeTypeAttributes = nodeTypes.get(nodeAttributes.nodeTypeId);
   if (!nodeTypeAttributes) {
-    console.warn(
+    errors.push(
       `Skipping export of node ${node.id} (${nodeAttributes.nodeId}) because node type ${nodeAttributes.nodeTypeId} is unknown.`,
     );
     return null;
   }
 
-  const transitions = buildTransitions(node.id, edges, nodeTypeAttributes.outPorts);
+  const transitions = buildTransitions(node.id, edges, nodeTypeAttributes.outPorts, errors);
 
   return {
     node_id: nodeAttributes.nodeId,
@@ -82,7 +93,12 @@ function toGraphNodeDTO(
   };
 }
 
-function bfsOrderNodes(nodes: ReactFlowNode[], edges: ReactFlowEdge[], startNodeId: string | null): ReactFlowNode[] {
+function bfsOrderNodes(
+  nodes: ReactFlowNode[],
+  edges: ReactFlowEdge[],
+  startNodeId: string | null,
+  errors: string[],
+): ReactFlowNode[] {
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const visited = new Set<string>();
   const orderedNodes: ReactFlowNode[] = [];
@@ -109,10 +125,10 @@ function bfsOrderNodes(nodes: ReactFlowNode[], edges: ReactFlowEdge[], startNode
     }
   }
 
-  // Log and exclude any nodes not reached by BFS (disconnected)
+  // Collect and exclude any nodes not reached by BFS (disconnected)
   for (const node of nodes) {
     if (!isStartNode(node) && !visited.has(node.id)) {
-      console.error(`Node ${node.id} is disconnected and will not be included in the exported graph.`);
+      errors.push(`Node ${node.id} is not connected to from the main graph.`);
     }
   }
 
@@ -123,19 +139,28 @@ function toGraphDTO(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
-): GraphDTO {
+): { result: ResultWithErrorMsgs; graph: GraphDTO | null } {
+  const errors: string[] = [];
   const nodeTypesDTO: GraphNodeTypeDTO[] = Array.from(nodeTypes.values()).map(toGraphNodeTypeDTO);
-  const startNodeId = findStartNodeId(nodes, edges);
-  const orderedNodes = bfsOrderNodes(nodes, edges, startNodeId);
+  const startNodeId = findStartNodeId(nodes, edges, errors);
+  const orderedNodes = bfsOrderNodes(nodes, edges, startNodeId, errors);
 
   const nodeDTOs: GraphNodeDTO[] = orderedNodes
-    .map((node) => toGraphNodeDTO(node, edges, nodeTypes))
+    .map((node) => toGraphNodeDTO(node, edges, nodeTypes, errors))
     .filter((node): node is GraphNodeDTO => node !== null);
 
-  return {
+  const graph: GraphDTO = {
     node_types: nodeTypesDTO,
     nodes: nodeDTOs,
     start_node_id: startNodeId,
+  };
+
+  return {
+    result: {
+      success: errors.length === 0,
+      errors,
+    },
+    graph,
   };
 }
 
@@ -146,9 +171,22 @@ export function exportGraphAsJsonFile(
   nodes: ReactFlowNode[],
   edges: ReactFlowEdge[],
   nodeTypes: Map<string, BfNodeTypeAttributes>,
+  saveInvalidGraph: boolean = false,
   filename: string = "behavior-flow-graph.json",
-): void {
-  const graphDTO = toGraphDTO(nodes, edges, nodeTypes);
-  const jsonGraph = JSON.stringify(graphDTO, null, 2);
-  downloadFile(jsonGraph, filename, "application/json");
+): ResultWithErrorMsgs {
+  const { result, graph } = toGraphDTO(nodes, edges, nodeTypes);
+  if (!result.success && !saveInvalidGraph) {
+    console.error("Graph contains errors and will not be exported:", result.errors);
+    return result;
+  }
+  let jsonGraph: string | null = null;
+  try {
+    jsonGraph = JSON.stringify(graph, null, 2);
+    downloadFile(jsonGraph, filename, "application/json");
+  } catch (err) {
+    result.errors.push(`Failed to parse or download graph: ${err instanceof Error ? err.message : String(err)}`);
+    result.success = false;
+    return result;
+  }
+  return result;
 }
