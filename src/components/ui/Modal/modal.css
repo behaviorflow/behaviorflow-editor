@@ -122,10 +122,3 @@
 .modal-input::placeholder {
 	color: var(--text-disabled);
 }
-
-.modal-error-message {
-	color: var(--text-error);
-	margin-top: 0.5em;
-	font-size: 0.98em;
-	font-weight: 500;
-}

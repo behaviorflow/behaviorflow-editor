@@ -2,7 +2,7 @@ import Modal from "../ui/Modal/Modal";
 import "../ui/Modal/modal.css";
 import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
-import { CircleX } from "lucide-react";
+import ErrorList from "../ui/ErrorList/ErrorList";
 import "./new-node-type-modal.css";
 import { BfNodeTypeCategory, ResultWithErrorMsgs } from "../../types";
 
@@ -69,11 +69,11 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
     <div>
       <Modal isOpen={isOpen} onClose={handleCancel} title="New Node Type">
         <div>
-          <label className="modal-field-label">Node Type Name: </label>
+          <label className="modal-field-label">Node Type ID: </label>
           <input
             className="modal-input"
             type="text"
-            placeholder="Enter node type name"
+            placeholder="Enter node type ID"
             value={nodeTypeName}
             onChange={handleNameInputChange}
           />
@@ -85,15 +85,7 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
           value={nodeCategoryId}
           onChange={setNodeCategoryId}
         />
-        {errors.length > 0 && (
-          <div>
-            {errors.map((e) => (
-              <div className="modal-error-message" key={e}>
-                <CircleX size={14.5} /> {e}
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="error-list-container">{errors.length > 0 && <ErrorList errors={errors} />}</div>
         <div className="modal-buttons">
           <button onClick={handleCreate} disabled={!nodeTypeName.trim()}>
             Create

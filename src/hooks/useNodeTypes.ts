@@ -80,10 +80,10 @@ export function useNodeTypes(initialNodeTypes: BfNodeTypeAttributes[]): UseNodeT
       errors.push("Node type ID cannot be empty.");
     }
     if (nodeType.typeId.length < 3 || nodeType.typeId.length > 64) {
-      errors.push("Node type names must be between 3 and 64 characters.");
+      errors.push("Node type ID must be between 3 and 64 characters.");
     }
     if (!/^[\p{L}\p{N}_ ]+$/u.test(nodeType.typeId)) {
-      errors.push("Node type names can only contain letters, numbers, underscores, and spaces.");
+      errors.push("Node type ID can only contain letters, numbers, underscores, and spaces.");
     }
     return { success: errors.length === 0, errors };
   }, []);

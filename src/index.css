@@ -18,7 +18,7 @@
   --background-hover: #7d7d7d55;
   --background-select: #6db0c177;
   --modal-backdrop: rgba(0, 0, 0, 0.50);
-  --select-outline: #2e87a3ff;
+  --select-outline: rgb(46, 136, 163);
   --text-primary: #111827ff;
   --text-secondary: royalblue;
   --text-disabled: rgb(143, 143, 143);
@@ -43,7 +43,7 @@
   --text-secondary: grey;
   --text-disabled: rgb(125, 125, 125);
   --text-error: #ff6e6eff;
-  --border: #ffffff;
+    --border: #ffffff;
   --border-selected: #efef41;
   --xy-edge-stroke: #ffffff;
   --xy-connectionline-stroke: var(--xy-edge-stroke);
