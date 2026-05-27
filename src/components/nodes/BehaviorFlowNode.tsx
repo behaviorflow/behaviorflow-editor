@@ -24,26 +24,26 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
   const { getNodeTypeById } = useNodeTypesContext();
   const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
   const nodeTypeAttributes = nodeTypeId ? getNodeTypeById(nodeTypeId) : null;
-  const { typeId, inParams = [], outParams = [], outPorts = [], category } = nodeTypeAttributes || {};
-  const prevOutPortsRef = useRef<string[]>(outPorts);
+  const { typeId, inParams = [], outParams = [], resultIds = [], category } = nodeTypeAttributes || {};
+  const prevResultIdsRef = useRef<string[]>(resultIds);
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const isDataInvalid = !nodeId || !nodeTypeId;
   const isUnknownType = nodeId && nodeTypeId && !nodeTypeAttributes;
 
-  const outPortsChanged = () => {
-    if (prevOutPortsRef.current.length !== outPorts.length) return true;
-    return !prevOutPortsRef.current.every((port, index) => port === outPorts[index]);
+  const haveResultIdsChanged = () => {
+    if (prevResultIdsRef.current.length !== resultIds.length) return true;
+    return !prevResultIdsRef.current.every((result_id, index) => result_id === resultIds[index]);
   };
 
   useLayoutEffect(() => {
-    const portsChanged = outPortsChanged();
-    if (isDataInvalid || isUnknownType || portsChanged) {
+    const resultIdsChanged = haveResultIdsChanged();
+    if (isDataInvalid || isUnknownType || resultIdsChanged) {
       // Remove edges connected to this node
       setEdges((edges) => edges.filter((edge) => edge.source !== props.id && edge.target !== props.id));
     }
-    prevOutPortsRef.current = outPorts;
-  }, [isDataInvalid, isUnknownType, nodeTypeId, outPorts, props.id, setEdges]);
+    prevResultIdsRef.current = resultIds;
+  }, [isDataInvalid, isUnknownType, nodeTypeId, resultIds, props.id, setEdges]);
 
   useLayoutEffect(() => {
     if (nodeRef.current && !isPreview) {
@@ -58,7 +58,7 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
         });
       }
     }
-  }, [props.id, updateNode, inParams, outParams, outPorts, typeId, showNodeIds, isPreview, props.data]);
+  }, [props.id, updateNode, inParams, outParams, resultIds, typeId, showNodeIds, isPreview, props.data]);
 
   if (isDataInvalid) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
@@ -67,9 +67,9 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
     return <div className="behavior-flow-node error">Unknown node type: {nodeTypeId}</div>;
   }
 
-  const has_non_label_out_port_only = outPorts.length === 1 && outPorts[0].length === 0;
+  const has_non_label_result_id_only = resultIds.length === 1 && resultIds[0].length === 0;
   const is_content =
-    inParams.length > 0 || outParams.length > 0 || (outPorts.length > 0 && !has_non_label_out_port_only);
+    inParams.length > 0 || outParams.length > 0 || (resultIds.length > 0 && !has_non_label_result_id_only);
 
   const nodeBackgroundColor = category ? NodeColors.BfNodeCategoryColors[category as BfNodeTypeCategory] : "#eee";
   const nodeHeaderClass = `node-header${!is_content ? " node-header--no-content" : ""}`;
@@ -97,12 +97,17 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
           </div>
           <div className="right-column">
             <div className="out-port-rows">
-              {!has_non_label_out_port_only &&
-                outPorts.map((port: string, index: number) => (
-                  <div key={nodeId + "-port-" + port} className="out-port-row">
-                    <span className="out-port-label">{port}:</span>
+              {!has_non_label_result_id_only &&
+                resultIds.map((result_id: string, index: number) => (
+                  <div key={nodeId + "-port-" + result_id} className="out-port-row">
+                    <span className="out-port-label">{result_id}:</span>
                     {!isPreview && (
-                      <Handle type="source" position={Position.Right} id={`${port}`} className="out-port" />
+                      <Handle
+                        type="source"
+                        position={Position.Right}
+                        id={result_id === "" ? SIMPLE_NODE_HANDLE_ID : result_id}
+                        className="out-port"
+                      />
                     )}
                   </div>
                 ))}
@@ -123,7 +128,7 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
           </div>
         </div>
       )}
-      {has_non_label_out_port_only && !isPreview && (
+      {has_non_label_result_id_only && !isPreview && (
         <Handle type="source" position={Position.Right} id={SIMPLE_NODE_HANDLE_ID} />
       )}
     </div>

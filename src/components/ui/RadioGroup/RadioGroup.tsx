@@ -7,21 +7,19 @@ export interface RadioOption {
 }
 
 interface RadioGroupProps {
-  label: string;
   name: string;
   options: RadioOption[];
   value: string;
   onChange: (value: string) => void;
 }
 
-const RadioGroup = ({ label, name, options, value, onChange }: RadioGroupProps) => {
+const RadioGroup = ({ name, options, value, onChange }: RadioGroupProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
 
   return (
-    <div className="radio-group-container">
-      <label className="field-label">{label}</label>
+    <div>
       <div className="radio-group">
         {options.map((option) => (
           <label key={option.value} className="radio-option">

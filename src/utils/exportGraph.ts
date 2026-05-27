@@ -2,19 +2,17 @@ import { Node as ReactFlowNode, Edge as ReactFlowEdge } from "@xyflow/react";
 import { downloadFile } from "./downloadFile";
 import { BfNodeTypeAttributes, ResultWithErrorMsgs } from "../types";
 import { ReactFlowNodeTypes } from "../constants";
+import { isStartNode } from "./nodeIdentity";
 import { SIMPLE_NODE_HANDLE_ID } from "../constants";
 import { GraphNodeTypeDTO, GraphNodeDTO, GraphDTO } from "./graphDtos";
 
 function toGraphNodeTypeDTO(nodeType: BfNodeTypeAttributes): GraphNodeTypeDTO {
   return {
     node_type_id: nodeType.typeId,
-    result_ids: nodeType.outPorts,
+    result_ids: nodeType.resultIds,
   };
 }
 
-function isStartNode(node: ReactFlowNode): boolean {
-  return node.type === ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE;
-}
 
 function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[], errors: string[]): string | null {
   const startNode = nodes.find((node) => isStartNode(node));
@@ -84,7 +82,7 @@ function toGraphNodeDTO(
     return null;
   }
 
-  const transitions = buildTransitions(node.id, edges, nodeTypeAttributes.outPorts, errors);
+  const transitions = buildTransitions(node.id, edges, nodeTypeAttributes.resultIds, errors);
 
   return {
     node_id: nodeAttributes.nodeId,

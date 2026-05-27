@@ -4,55 +4,49 @@ import RadioGroup, { RadioOption } from "../ui/RadioGroup/RadioGroup";
 import React, { useState } from "react";
 import ErrorList from "../ui/ErrorList/ErrorList";
 import "./new-node-type-modal.css";
-import { BfNodeTypeCategory, ResultWithErrorMsgs } from "../../types";
+import { ResultWithErrorMsgs } from "../../types";
+import { ResultTypeSets } from "../../constants";
 
 interface NewNodeTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateNodeType: (nodeTypeName: string, outPorts: string[], category: BfNodeTypeCategory) => ResultWithErrorMsgs;
+  onCreateNodeType: (nodeTypeId: string, resultIds: string[]) => ResultWithErrorMsgs;
 }
 
 interface CategoryConfig {
   id: string;
   label: string;
-  outPorts: string[];
-  category: BfNodeTypeCategory;
+  resultIds: string[];
 }
 
 const CategoryConfigs: CategoryConfig[] = [
-  { id: "Simple", label: "Simple", outPorts: [""], category: BfNodeTypeCategory.Simple },
-  { id: "Boolean", label: "Boolean (True/False)", outPorts: ["True", "False"], category: BfNodeTypeCategory.Condition },
-  {
-    id: "Action",
-    label: "Action (Success/Failure)",
-    outPorts: ["Success", "Failure"],
-    category: BfNodeTypeCategory.Action,
-  },
-]; // todo: These should be more global designators for coloring, etc.
+  { id: "Simple", label: "Simple Process", resultIds: ResultTypeSets.Simple },
+  { id: "Decision", label: "Decision (Yes/No)", resultIds: ResultTypeSets.Decision },
+];
 
 const DefaultCategory = CategoryConfigs[0];
 
 const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModalProps) => {
-  const [nodeTypeName, setNodeTypeName] = useState("");
+  const [nodeTypeId, setNodeTypeId] = useState("");
   const [nodeCategoryId, setNodeCategoryId] = useState(DefaultCategory.id);
 
-  const handleNameInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNodeTypeName(event.target.value);
+  const handleIdInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNodeTypeId(event.target.value);
   };
 
   const [errors, setErrors] = useState<string[]>([]);
 
   const resetAndExit = () => {
-    setNodeTypeName("");
+    setNodeTypeId("");
     setNodeCategoryId(DefaultCategory.id);
     setErrors([]);
     onClose();
   };
 
   const handleCreate = () => {
-    if (nodeTypeName.trim()) {
+    if (nodeTypeId.trim()) {
       const category = CategoryConfigs.find((c) => c.id === nodeCategoryId) || DefaultCategory;
-      const result = onCreateNodeType(nodeTypeName, category.outPorts, category.category);
+      const result = onCreateNodeType(nodeTypeId, category.resultIds);
       if (result.success) {
         resetAndExit();
       } else {
@@ -68,26 +62,28 @@ const NewNodeTypeModal = ({ isOpen, onClose, onCreateNodeType }: NewNodeTypeModa
   return (
     <div>
       <Modal isOpen={isOpen} onClose={handleCancel} title="New Node Type">
-        <div>
+        <div className="modal-section">
           <label className="modal-field-label">Node Type ID: </label>
           <input
             className="modal-input"
             type="text"
             placeholder="Enter node type ID"
-            value={nodeTypeName}
-            onChange={handleNameInputChange}
+            value={nodeTypeId}
+            onChange={handleIdInputChange}
           />
         </div>
-        <RadioGroup
-          label="Category:"
-          name="nodeCategory"
-          options={CategoryConfigs.map((c) => ({ value: c.id, label: c.label }))}
-          value={nodeCategoryId}
-          onChange={setNodeCategoryId}
-        />
-        <div className="error-list-container">{errors.length > 0 && <ErrorList errors={errors} />}</div>
+        <div className="modal-section">
+          <label className="modal-field-label">Category: </label>
+          <RadioGroup
+            name="nodeCategory"
+            options={CategoryConfigs.map((c) => ({ value: c.id, label: c.label }))}
+            value={nodeCategoryId}
+            onChange={setNodeCategoryId}
+          />
+        </div>
+        <div className="modal-section">{errors.length > 0 && <ErrorList errors={errors} />}</div>
         <div className="modal-buttons">
-          <button onClick={handleCreate} disabled={!nodeTypeName.trim()}>
+          <button onClick={handleCreate} disabled={!nodeTypeId.trim()}>
             Create
           </button>
           <button onClick={handleCancel}>Cancel</button>

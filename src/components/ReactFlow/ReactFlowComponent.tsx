@@ -75,6 +75,7 @@ export interface ReactFlowComponentProps {
   showMiniMap: boolean;
   generateReactNode: (nodeData: any, position: { x: number; y: number }) => Node;
   onGraphUpdate: (nodes: Node[], edges: Edge[]) => void;
+  graphOverride?: { nodes: Node[]; edges: Edge[] } | null;
 }
 
 export default function ReactFlowContent({
@@ -83,20 +84,34 @@ export default function ReactFlowContent({
   showMiniMap,
   generateReactNode,
   onGraphUpdate,
+  graphOverride,
 }: ReactFlowComponentProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const isSnapping = useKeyPress(SNAP_KEY);
 
-  const onLayout = useCallback(() => {
-    const { nodes: layoutedNodes, edges: layoutedEdges }: { nodes: Node[]; edges: Edge[] } = getLayoutedElements(
-      nodes,
-      edges,
-    );
+  useEffect(() => {
+    if (!graphOverride) return;
+    console.log("Applying graph override with", graphOverride.nodes.length, "nodes and", graphOverride.edges.length, "edges");
+    for (const node of graphOverride.nodes) {
+      console.log(`Node ${node.id}:`, node);
+    }
+    for (const edge of graphOverride.edges) {
+      console.log(`Edge ${edge.id}:`, edge);
+    }
+    setNodes(graphOverride.nodes);
+    setEdges(graphOverride.edges);
+    setTimeout(() => onLayout(graphOverride.nodes, graphOverride.edges), 0);
+  }, [graphOverride]);
 
-    setNodes([...layoutedNodes]);
-    setEdges([...layoutedEdges]);
-  }, [nodes, edges, setNodes, setEdges]);
+  const onLayout = useCallback(
+    (layoutNodes: Node[] = nodes, layoutEdges: Edge[] = edges) => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(layoutNodes, layoutEdges);
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+    },
+    [nodes, edges, setNodes, setEdges],
+  );
 
   // Call onGraphUpdate whenever nodes or edges change
   useEffect(() => {
@@ -162,6 +177,7 @@ export default function ReactFlowContent({
 
   return (
     <div className="react-flow-component">
+      <button onClick={() => onLayout()}>Auto Layout</button>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -203,13 +219,13 @@ function minimapNodeColor(node: Node, getNodeTypeById: (id: string) => BfNodeTyp
         return NodeColors.BfNodeCategoryColors[category];
       }
       console.warn("Unknown category for minimap color:", category);
-      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Simple];
+      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Process];
     }
     case ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE:
       return NodeColors.StartNodeColor;
     default:
       console.warn("Unknown node type for minimap color:", node.type);
-      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Simple];
+      return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Process];
   }
 }
 

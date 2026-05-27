@@ -9,19 +9,18 @@ export type NodeParam = {
 };
 
 export enum BfNodeTypeCategory {
-  Action = "Action",
-  Condition = "Condition",
-  Simple = "Simple",
+  Process = "Process",
+  Decision = "Decision",
   Success = "Success",
   Failure = "Failure",
-  Custom = "Custom",
+  Unknown = "Unknown",
 }
 
 export type BfNodeTypeAttributes = {
   typeId: string;
   inParams: NodeParam[];
   outParams: NodeParam[];
-  outPorts: string[];
+  resultIds: string[];
   isReadOnly: boolean;
   category: BfNodeTypeCategory;
 };

@@ -9,10 +9,10 @@ import BehaviorFlowMenu from "./components/BehaviorFlowMenu/BehaviorFlowMenu";
 import NodePalette from "./components/NodePalette/NodePalette";
 import BehaviorFlowSettings, { ToggleSwitchConfig } from "./components/BehaviorFlowSettings/BehaviorFlowSettings";
 import ReactFlowComponent from "./components/ReactFlow/ReactFlowComponent";
-import { BfNodeTypeAttributes, BfNodeTypeCategory } from "./types";
 import { NodeTypesProvider, useNodeTypesContext } from "./contexts";
 import { exportGraphAsJsonFile } from "./utils";
-import { NodeTypeIds, ReactFlowNodeTypes } from "./constants";
+import { NodeTypeIds, ReactFlowNodeTypes, SIMPLE_NODE_HANDLE_ID, StandardLibraryNodeTypes } from "./constants";
+import { isStartNode } from "./utils/nodeIdentity";
 
 import useLocalStorage from "use-local-storage";
 
@@ -23,6 +23,7 @@ import NodeIdManager from "./utils/NodeIdManager";
 import { SettingsProvider } from "./contexts/SettingsContext";
 
 import ExportGraphModal from "./components/ExportGraphModal/ExportGraphModal";
+import ImportGraphModal from "./components/ImportGraphModal/ImportGraphModal";
 
 const initialNodes: ReactFlowNode[] = [
   {
@@ -37,25 +38,6 @@ const initialNodes: ReactFlowNode[] = [
 
 const initialEdges: ReactFlowEdge[] = [];
 
-const initialBfNodeTypes: BfNodeTypeAttributes[] = [
-  {
-    typeId: "Success",
-    inParams: [],
-    outParams: [],
-    outPorts: [],
-    isReadOnly: true,
-    category: BfNodeTypeCategory.Success,
-  },
-  {
-    typeId: "Failure",
-    inParams: [],
-    outParams: [],
-    outPorts: [],
-    isReadOnly: true,
-    category: BfNodeTypeCategory.Failure,
-  },
-];
-
 const nodeIdManager = new NodeIdManager();
 
 function AppContent() {
@@ -63,17 +45,24 @@ function AppContent() {
   const [theme, setTheme] = useLocalStorage("theme", defaultDark ? "dark" : "light");
   const [showMiniMap, setShowMiniMap] = useLocalStorage("showMiniMap", true);
   const [showNodeIds, setShowNodeIds] = useLocalStorage("showNodeIds", false);
-  const { nodeTypes } = useNodeTypesContext();
+  const { nodeTypes, replaceNodeTypes, hasUserDefinedNodeTypes } = useNodeTypesContext();
+  // This is the actual current graph data
   const [graphData, setGraphData] = React.useState<{ nodes: ReactFlowNode[]; edges: ReactFlowEdge[] }>({
     nodes: initialNodes,
     edges: initialEdges,
   });
+  // This is a mechanism to request to override the current graph
+  const [importedGraphOverride, setImportedGraphOverride] = React.useState<{
+    nodes: ReactFlowNode[];
+    edges: ReactFlowEdge[];
+  } | null>(null);
 
   const handleGraphUpdate = React.useCallback((nodes: ReactFlowNode[], edges: ReactFlowEdge[]) => {
     setGraphData({ nodes, edges });
   }, []);
 
   const [isExportFileSelectModalOpen, setIsExportFileSelectModalOpen] = useState(false);
+  const [isImportFileSelectModalOpen, setIsImportFileSelectModalOpen] = useState(false);
   const menuItems = [
     {
       label: "Export as JSON",
@@ -93,6 +82,35 @@ function AppContent() {
           }}
         />
       ),
+    },
+    {
+      label: "Import from JSON",
+      onClick: () => {
+        setIsImportFileSelectModalOpen(true);
+      },
+      children: (() => {
+        const userDefinedNodes = graphData.nodes.filter((node) => !isStartNode(node));
+        const promptConfirmation = hasUserDefinedNodeTypes() || userDefinedNodes.length > 0; // todo: if the node types or nodes have changed since the most recent successful import
+        return (
+          <ImportGraphModal
+            isOpen={isImportFileSelectModalOpen}
+            onClose={() => setIsImportFileSelectModalOpen(false)}
+            updateGraph={(nodes, edges, start_node_id, nodeTypes) => {
+              const nt_result = replaceNodeTypes(nodeTypes);
+              if (nt_result.success) {
+                const startEdge = {
+                  id: `starting-edge-from:${start_node_id}`,
+                  source: NodeTypeIds.START_NODE_TYPE_ID,
+                  target: start_node_id,
+                };
+                setImportedGraphOverride({ nodes: [...initialNodes, ...nodes], edges: [startEdge, ...edges] });
+              }
+              return nt_result;
+            }}
+            promptConfirmation={promptConfirmation}
+          />
+        );
+      })(),
     },
   ];
 
@@ -164,6 +182,7 @@ function AppContent() {
             showMiniMap={showMiniMap}
             generateReactNode={generateReactNode}
             onGraphUpdate={handleGraphUpdate}
+            graphOverride={importedGraphOverride}
           />
         </div>
       </SettingsProvider>
@@ -173,7 +192,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <NodeTypesProvider initialNodeTypes={initialBfNodeTypes}>
+    <NodeTypesProvider initialNodeTypes={StandardLibraryNodeTypes}>
       <ReactFlowProvider>
         <AppContent />
       </ReactFlowProvider>

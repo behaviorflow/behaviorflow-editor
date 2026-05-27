@@ -4,6 +4,7 @@ import SimpleButtonWithIcon from "../ui/SimpleButtonWithIcon/SimpleButtonWithIco
 import { BfNodeTypeAttributes, BfNodeTypeCategory, ResultWithErrorMsgs } from "../../types";
 import { useNodeTypesContext } from "../../contexts";
 import { Plus, Trash2 } from "lucide-react";
+import { resultIdsToCategory } from "../../utils/resultIdsToCategory";
 import "./node-palette.css";
 
 import NewNodeTypeModal from "../NewNodeTypeModal/NewNodeTypeModal";
@@ -44,18 +45,14 @@ export default function NodePalette() {
   };
 
   // Attempts to add a new node type.
-  const newNodeTypeCallback = (
-    nodeTypeName: string,
-    outPorts: string[],
-    category: BfNodeTypeCategory,
-  ): ResultWithErrorMsgs => {
+  const newNodeTypeCallback = (nodeTypeId: string, resultIds: string[]): ResultWithErrorMsgs => {
     const newNodeType: BfNodeTypeAttributes = {
-      typeId: nodeTypeName,
+      typeId: nodeTypeId,
       inParams: [],
       outParams: [],
-      outPorts: outPorts,
+      resultIds: resultIds,
       isReadOnly: false,
-      category: category,
+      category: resultIdsToCategory(resultIds, nodeTypeId),
     };
     return addNodeType(newNodeType);
   };

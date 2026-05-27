@@ -72,7 +72,10 @@
 	display: flex;
 	gap: 0.5em;
 	justify-content: flex-end;
-	margin-top: 1em;
+}
+
+.modal-section {
+	margin-bottom: 0.5em;
 }
 
 .modal-buttons button {

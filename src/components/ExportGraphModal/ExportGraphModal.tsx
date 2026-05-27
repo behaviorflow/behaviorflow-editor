@@ -1,5 +1,6 @@
 import Modal from "../ui/Modal/Modal";
 import "./export-graph-modal.css";
+import "../ui/Modal/modal.css";
 import React, { useState, useRef, useEffect } from "react";
 import useLocalStorage from "use-local-storage";
 import { ResultWithErrorMsgs } from "../../types";
@@ -12,7 +13,7 @@ interface ExportGraphModalProps {
 }
 
 const DEFAULT_FILE_NAME = "behavior-flow-graph.json";
-const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalProps) => {
+export default function ExportGraphModal({ isOpen, onClose, onExportGraph }: ExportGraphModalProps) {
   const [fileName, setFileName] = useLocalStorage("exportFileName", DEFAULT_FILE_NAME);
   const inputRef = useRef<HTMLInputElement>(null);
   // Select input text when modal opens
@@ -61,7 +62,7 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
   return (
     <div>
       <Modal isOpen={isOpen} onClose={handleCancel} title="Export Graph as JSON">
-        <div>
+        <div className="modal-section">
           <label className="modal-field-label">File Name: </label>
           <input
             className="modal-input"
@@ -73,7 +74,7 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
           />
         </div>
         {/* todo: it would be more useful in the advent of graph-related errors, to close the modal and display the errors in a banner or roll-down at the top (or bottom) of the graph editor */}
-        <div className="error-list-container">{errors.length > 0 && <ErrorList errors={errors} />}</div>
+        <div className="modal-section">{errors.length > 0 && <ErrorList errors={errors} />}</div>
         <div className="modal-buttons">
           <button onClick={handleExport} disabled={!fileName.trim()}>
             Export
@@ -83,6 +84,4 @@ const ExportGraphModal = ({ isOpen, onClose, onExportGraph }: ExportGraphModalPr
       </Modal>
     </div>
   );
-};
-
-export default ExportGraphModal;
+}
