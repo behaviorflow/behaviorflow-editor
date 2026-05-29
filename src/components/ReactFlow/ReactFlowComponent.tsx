@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -13,6 +13,7 @@ import {
   useReactFlow,
   useKeyPress,
   BackgroundVariant,
+  useNodesInitialized,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BehaviorFlowNodeData } from "../nodes/BehaviorFlowNode";
@@ -36,10 +37,10 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "LR") => 
   dagreGraph.setGraph({ rankdir: direction, ranksep: 50, nodesep: 50 });
 
   nodes.forEach((node) => {
-    const width = typeof node.data?.measuredWidth === "number" ? node.data.measuredWidth : defaultNodeWidth;
-    const height = typeof node.data?.measuredHeight === "number" ? node.data.measuredHeight : defaultNodeHeight;
-    if (width === defaultNodeWidth || height === defaultNodeHeight) {
-      console.warn(`Node ${node.id} missing measuredWidth or measuredHeight, using default.`);
+    const width = node.measured?.width ?? defaultNodeWidth;
+    const height = node.measured?.height ?? defaultNodeHeight;
+    if (!node.measured?.width || !node.measured?.height) {
+      console.warn(`Node ${node.id} not yet measured by React Flow, using default.`);
     }
     dagreGraph.setNode(node.id, { width, height });
   });
@@ -89,29 +90,38 @@ export default function ReactFlowContent({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const isSnapping = useKeyPress(SNAP_KEY);
+  const nodesInitialized = useNodesInitialized();
+  const needsLayoutRef = useRef(false);
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+  useEffect(() => {
+    edgesRef.current = edges;
+  }, [edges]);
+
+  useEffect(() => {
+    if (!nodesInitialized || !needsLayoutRef.current) return;
+    needsLayoutRef.current = false;
+    const { nodes: ln, edges: le } = getLayoutedElements(nodesRef.current, edgesRef.current);
+    setNodes(ln);
+    setEdges(le);
+  }, [nodesInitialized]);
 
   useEffect(() => {
     if (!graphOverride) return;
-    console.log("Applying graph override with", graphOverride.nodes.length, "nodes and", graphOverride.edges.length, "edges");
-    for (const node of graphOverride.nodes) {
-      console.log(`Node ${node.id}:`, node);
-    }
-    for (const edge of graphOverride.edges) {
-      console.log(`Edge ${edge.id}:`, edge);
-    }
+    needsLayoutRef.current = true;
     setNodes(graphOverride.nodes);
     setEdges(graphOverride.edges);
-    setTimeout(() => onLayout(graphOverride.nodes, graphOverride.edges), 0);
   }, [graphOverride]);
 
-  const onLayout = useCallback(
-    (layoutNodes: Node[] = nodes, layoutEdges: Edge[] = edges) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(layoutNodes, layoutEdges);
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
-    },
-    [nodes, edges, setNodes, setEdges],
-  );
+  const onLayout = useCallback(() => {
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodesRef.current, edgesRef.current);
+    setNodes([...layoutedNodes]);
+    setEdges([...layoutedEdges]);
+  }, [setNodes, setEdges]);
 
   // Call onGraphUpdate whenever nodes or edges change
   useEffect(() => {
@@ -218,13 +228,13 @@ function minimapNodeColor(node: Node, getNodeTypeById: (id: string) => BfNodeTyp
       if (category && category in NodeColors.BfNodeCategoryColors) {
         return NodeColors.BfNodeCategoryColors[category];
       }
-      console.warn("Unknown category for minimap color:", category);
+      console.warn(`[Node ${node.id}] Unknown category for minimap color: ${category}`);
       return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Process];
     }
     case ReactFlowNodeTypes.START_NODE_REACT_FLOW_TYPE:
       return NodeColors.StartNodeColor;
     default:
-      console.warn("Unknown node type for minimap color:", node.type);
+      console.warn(`[Node ${node.id}] Unknown node type for minimap color: ${node.type}`);
       return NodeColors.BfNodeCategoryColors[BfNodeTypeCategory.Process];
   }
 }

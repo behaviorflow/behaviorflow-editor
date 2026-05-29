@@ -7,8 +7,6 @@ import { BfNodeTypeCategory } from "../../types";
 
 export type BehaviorFlowNodeData = {
   nodeAttributes: BfNodeAttributes;
-  measuredWidth?: number;
-  measuredHeight?: number;
 };
 
 type BehaviorFlowNodeType = Node<BehaviorFlowNodeData>;
@@ -19,7 +17,7 @@ interface BehaviorFlowNodeProps {
 
 function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowNodeProps) {
   const isPreview = props.isPreview ?? false;
-  const { setEdges, updateNode } = useReactFlow();
+  const { setEdges } = useReactFlow();
   const { showNodeIds } = useSettingsContext();
   const { getNodeTypeById } = useNodeTypesContext();
   const { nodeId, nodeTypeId } = props.data.nodeAttributes || {};
@@ -44,21 +42,6 @@ function BehaviorFlowNode(props: NodeProps<BehaviorFlowNodeType> & BehaviorFlowN
     }
     prevResultIdsRef.current = resultIds;
   }, [isDataInvalid, isUnknownType, nodeTypeId, resultIds, props.id, setEdges]);
-
-  useLayoutEffect(() => {
-    if (nodeRef.current && !isPreview) {
-      const rect = nodeRef.current.getBoundingClientRect();
-      if (props.data.measuredWidth !== rect.width || props.data.measuredHeight !== rect.height) {
-        updateNode(props.id, {
-          data: {
-            ...props.data,
-            measuredWidth: rect.width,
-            measuredHeight: rect.height,
-          },
-        });
-      }
-    }
-  }, [props.id, updateNode, inParams, outParams, resultIds, typeId, showNodeIds, isPreview, props.data]);
 
   if (isDataInvalid) {
     return <div className="behavior-flow-node error">Invalid node data</div>;
