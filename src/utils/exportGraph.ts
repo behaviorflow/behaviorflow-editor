@@ -13,7 +13,6 @@ function toGraphNodeTypeDTO(nodeType: BfNodeTypeAttributes): GraphNodeTypeDTO {
   };
 }
 
-
 function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[], errors: string[]): string | null {
   const startNode = nodes.find((node) => isStartNode(node));
   if (!startNode) {
@@ -31,7 +30,7 @@ function findStartNodeId(nodes: ReactFlowNode[], edges: ReactFlowEdge[], errors:
 function buildTransitions(
   nodeId: string,
   edges: ReactFlowEdge[],
-  expectedHandleIds: string[],
+  expectedHandleIdsOrdered: string[],
   errors: string[],
 ): Record<string, string> {
   const transitions: Record<string, string> = {};
@@ -48,8 +47,8 @@ function buildTransitions(
     }
     transitions[edge.sourceHandle] = edge.target;
   }
-  const missing = expectedHandleIds.filter((port) => !Object.keys(transitions).includes(port));
-  const extra = Object.keys(transitions).filter((key) => !expectedHandleIds.includes(key));
+  const missing = expectedHandleIdsOrdered.filter((port) => !Object.keys(transitions).includes(port));
+  const extra = Object.keys(transitions).filter((key) => !expectedHandleIdsOrdered.includes(key));
   if (missing.length > 0) {
     errors.push(`Not all output ports of node ${nodeId} have corresponding edges.`);
   }

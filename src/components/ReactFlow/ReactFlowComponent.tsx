@@ -23,47 +23,11 @@ import { BfNodeTypeAttributes, BfNodeTypeCategory } from "../../types";
 import { ReactFlowNodeTypes, NodeColors } from "../../constants";
 import { useNodeTypesContext } from "../../contexts";
 import "./react-flow.css";
-import dagre from "dagre";
+import { getLayoutedElements } from "./elkLayout";
 
 const SNAP_KEY = "Shift";
 const MULTI_SELECT_KEY = "Control";
 const GRID_SIZE = 15;
-
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "LR") => {
-  const defaultNodeWidth = 60;
-  const defaultNodeHeight = 60;
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-  dagreGraph.setGraph({ rankdir: direction, ranksep: 50, nodesep: 50 });
-
-  nodes.forEach((node) => {
-    const width = node.measured?.width ?? defaultNodeWidth;
-    const height = node.measured?.height ?? defaultNodeHeight;
-    if (!node.measured?.width || !node.measured?.height) {
-      console.warn(`Node ${node.id} not yet measured by React Flow, using default.`);
-    }
-    dagreGraph.setNode(node.id, { width, height });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  const layoutedNodes = nodes.map((node) => {
-    const dagreNode = dagreGraph.node(node.id);
-    return {
-      ...node,
-      position: {
-        x: dagreNode.x - dagreNode.width / 2,
-        y: dagreNode.y - dagreNode.height / 2,
-      },
-    };
-  });
-
-  return { nodes: layoutedNodes, edges: edges };
-};
 
 const reactFlowNodeTypes = {
   behaviorFlowNode: BehaviorFlowNode,
@@ -102,40 +66,42 @@ export default function ReactFlowContent({
     edgesRef.current = edges;
   }, [edges]);
 
-  useEffect(() => {
-    if (!nodesInitialized || !needsLayoutRef.current) return;
-    needsLayoutRef.current = false;
-    const { nodes: ln, edges: le } = getLayoutedElements(nodesRef.current, edgesRef.current);
+  const { getNodeTypeById } = useNodeTypesContext();
+
+  const runLayout = useCallback(async () => {
+    const { nodes: ln, edges: le } = await getLayoutedElements(
+      nodesRef.current,
+      edgesRef.current,
+      getNodeTypeById,
+    );
     setNodes(ln);
     setEdges(le);
-  }, [nodesInitialized]);
+  }, [setNodes, setEdges, getNodeTypeById]);
+
+  useEffect(() => {
+    // Wait until 1) needsLayout flag is set to true, and 2) nodes are initialized (meaning node dimension are meausred) before running layout.
+    if (!nodesInitialized || !needsLayoutRef.current) return;
+    needsLayoutRef.current = false;
+    runLayout();
+  }, [nodesInitialized, runLayout]);
 
   useEffect(() => {
     if (!graphOverride) return;
     needsLayoutRef.current = true;
     setNodes(graphOverride.nodes);
     setEdges(graphOverride.edges);
-  }, [graphOverride]);
+  }, [graphOverride, setNodes, setEdges]);
 
-  const onLayout = useCallback(() => {
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodesRef.current, edgesRef.current);
-    setNodes([...layoutedNodes]);
-    setEdges([...layoutedEdges]);
-  }, [setNodes, setEdges]);
-
-  // Call onGraphUpdate whenever nodes or edges change
+  // Call onGraphUpdate whenever nodes or edges change to propagate graph changes upward
   useEffect(() => {
     onGraphUpdate(nodes, edges);
   }, [nodes, edges, onGraphUpdate]);
 
   const onConnect = useCallback(
     (connection: Edge | Connection) => {
-      const newEdge = {
-        ...connection,
-        type: "default",
-      };
+      const newEdge = { ...connection, type: "default" };
       setEdges((edges) => {
-        // Remove any previous edge from the same source handle (to enforce single connection per out port)
+        // Enforce single connection per out-port handle.
         const edgesWithPrevRemoved = edges.filter(
           (edge) => !(edge.source === connection.source && edge.sourceHandle === connection.sourceHandle),
         );
@@ -163,31 +129,23 @@ export default function ReactFlowContent({
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     const data = event.dataTransfer.getData("application/json");
-
-    if (data) {
-      try {
-        const node = JSON.parse(data);
-        if (node) {
-          const position = screenToFlowPosition({
-            x: event.clientX,
-            y: event.clientY,
-          });
-
-          insertNode(node, position);
-        }
-      } catch (e) {
-        console.error("Exception on drop:", e);
+    if (!data) return;
+    try {
+      const node = JSON.parse(data);
+      if (node) {
+        const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
+        insertNode(node, position);
       }
+    } catch (e) {
+      console.error("Exception on drop:", e);
     }
   };
 
   const deleteKeyCode = ["Backspace", "Delete"];
 
-  const { getNodeTypeById } = useNodeTypesContext();
-
   return (
     <div className="react-flow-component">
-      <button onClick={() => onLayout()}>Auto Layout</button>
+      <button onClick={runLayout}>Auto Layout</button>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -240,8 +198,5 @@ function minimapNodeColor(node: Node, getNodeTypeById: (id: string) => BfNodeTyp
 }
 
 function minimapNodeStrokeColor(node: Node) {
-  if (node.selected) {
-    return "rgb(255, 227, 100)";
-  }
-  return "transparent";
+  return node.selected ? "rgb(255, 227, 100)" : "transparent";
 }
